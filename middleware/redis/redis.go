@@ -10,7 +10,7 @@ var (
 	Redis *v7.Client
 )
 
-func init() {
+func Init() {
 	addr := viper.GetString("redis.addr")
 	password := viper.GetString("redis.password")
 	dbIndex := viper.GetInt("redis.db")

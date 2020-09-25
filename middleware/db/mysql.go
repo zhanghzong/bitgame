@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/constants/envs"
 	"log"
@@ -13,7 +14,6 @@ var (
 )
 
 func Init() {
-	// "root:123@tcp(localhost:3306)/game_go_fishing?charset=utf8&parseTime=True&loc=Local"
 	host := viper.GetString("mysql.host")
 	user := viper.GetString("mysql.user")
 	passwd := viper.GetString("mysql.passwd")
