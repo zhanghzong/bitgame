@@ -8,7 +8,6 @@ import (
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/jwt"
 	"log"
-	"strings"
 )
 
 func parseMsg(c *Client, message []byte) {
@@ -80,7 +79,7 @@ func parseMsg(c *Client, message []byte) {
 	})
 	log.Printf("接受消息:%s\n", msgJson)
 
-	value, ok := getHandlers(strings.Title(cmd))
+	value, ok := getHandlers(cmd)
 	if ok == false {
 		c.SendMsg(map[string]interface{}{
 			"cmd": "conn::error",
