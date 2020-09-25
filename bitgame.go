@@ -15,7 +15,7 @@ import (
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	WriteBufferSize: 10240,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -66,7 +66,7 @@ func ServeWs(hub *ClientManager, context *gin.Context) {
 	client.CommonKey = commonKey
 	client.Hub = hub
 	client.Conn = conn
-	client.Send = make(chan []byte, 256)
+	client.Send = make(chan []byte, 1024)
 	client.Context = context
 
 	client.Hub.Register <- client
