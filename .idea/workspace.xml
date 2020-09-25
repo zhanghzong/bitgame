@@ -20,8 +20,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="efcec062-a5c4-4c83-b33a-bd6243b0d05e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/1" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/bitgame.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client_manger.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/handler.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/request_msg.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/constants/constants.go" beforeDir="false" afterPath="$PROJECT_DIR$/constants/constants.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/structs/RequestJwt.go" beforeDir="false" afterPath="$PROJECT_DIR$/structs/RequestJwt.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/aes/aes.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/aes/aes.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/jwt/jwt.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/jwt/jwt.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/rsa/rsa.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/rsa/rsa.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/utils.go" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +86,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>

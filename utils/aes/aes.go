@@ -6,11 +6,15 @@ import (
 	"encoding/base64"
 )
 
-func Decode(encrypted []byte, key []byte) (decryted []byte) {
-	encrypted, _ = base64.StdEncoding.DecodeString(string(encrypted))
+func Decode(encrypted []byte, key []byte) ([]byte, error) {
+	str, err := base64.StdEncoding.DecodeString(string(encrypted))
+	if err != nil {
+		return []byte(""), err
+	}
 
-	return aesDecryptECB(encrypted, key)
+	return aesDecryptECB(str, key)
 }
+
 func Encode(data, key []byte) []byte {
 	return aesEncryptECB(data, key)
 }
@@ -28,10 +32,10 @@ func PKCS7Padding(ciphertext []byte, blockSize int) []byte {
 }
 
 // 解密
-func aesDecryptECB(data, key []byte) (decryted []byte) {
+func aesDecryptECB(data, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if block == nil || err != nil {
-		return []byte("")
+		return []byte(""), err
 	}
 
 	decrypted := make([]byte, len(data))
@@ -41,7 +45,7 @@ func aesDecryptECB(data, key []byte) (decryted []byte) {
 		block.Decrypt(decrypted[bs:be], data[bs:be])
 	}
 
-	return PKCS7UnPadding(decrypted)
+	return PKCS7UnPadding(decrypted), nil
 }
 
 // 加密

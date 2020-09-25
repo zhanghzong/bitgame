@@ -7,7 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
-	"game/http/constants"
+	"github.com/zhanghuizong/bitgame/constants"
 	"strings"
 )
 

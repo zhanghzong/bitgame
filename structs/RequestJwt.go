@@ -16,21 +16,21 @@ package structs
 //	"iat": 1600691912
 //}
 type RequestJwtData struct {
-	Domain     string
-	Email      string
-	OpenId     string
-	PayPwdFlag bool
-	PwdFlag    bool
-	ShowName   string
-	Timestamp  int
-	Uid        string
-	UserId     int
+	Domain     string `json:"domain"`
+	Email      string `json:"email"`
+	OpenId     string `json:"open_id"`
+	PayPwdFlag bool   `json:"pay_pwd_flag"`
+	PwdFlag    bool   `json:"pwd_flag"`
+	ShowName   string `json:"show_name"`
+	Timestamp  int    `json:"timestamp"`
+	Uid        string `json:"uid"`
+	UserId     int    `json:"user_id"`
 }
 
 type RequestJwt struct {
-	Data RequestJwtData
-	Exp  int
-	Iat  int
+	Data RequestJwtData `json:"data"`
+	Exp  int            `json:"exp"`
+	Iat  int            `json:"iat"`
 }
 
 // 接受消息结构体

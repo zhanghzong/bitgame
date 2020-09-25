@@ -2,38 +2,32 @@ package utils
 
 import (
 	"encoding/json"
-	"game/http/structs"
-	"game/utils/aes"
-	"github.com/astaxie/beego"
+	"github.com/spf13/viper"
+	"github.com/zhanghuizong/bitgame/structs"
+	"github.com/zhanghuizong/bitgame/utils/aes"
 	"log"
 )
 
 func IsAuth() bool {
-	auth, err := beego.AppConfig.Bool("auth")
-	if err != nil {
-		log.Println("获取 auth 变量异常", err)
-	}
-
-	return auth
+	return viper.GetBool("app.auth")
 }
 
 func GetRequestMsg(message []byte, commonKey string) *structs.RequestMsg {
-	msg := string(message)
-	msgData := msg[1:]
-
-	// 解析请求数据
-	var msgStruct []byte
 	if IsAuth() {
-		msgStruct = aes.Decode([]byte(msgData), []byte(commonKey))
-	} else {
-		msgStruct = []byte(msgData)
+		msgData := message[1:]
+		var err error
+		message, err = aes.Decode(msgData, []byte(commonKey))
+		if err != nil {
+			log.Println("消息体解密异常", err)
+			return nil
+		}
 	}
-	log.Println("接受到消息：", string(msgStruct))
 
 	requestMsgData := &structs.RequestMsg{}
-	errMsg := json.Unmarshal(msgStruct, requestMsgData)
+	errMsg := json.Unmarshal(message, requestMsgData)
 	if errMsg != nil {
 		log.Println("解析数据异常：", errMsg)
+		return nil
 	}
 
 	return requestMsgData
