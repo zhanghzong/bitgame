@@ -43,9 +43,9 @@ func ServeWs(hub *ClientManager, context *gin.Context) {
 	var commonKey string
 	if utils.IsAuth() {
 		auth := context.Query("auth")
-		commonKey = rsa.Authorize(auth)
-
+		commonKey, _ = rsa.Authorize(auth, viper.GetString("java.priKey"))
 		log.Println("commonKey:", commonKey)
+
 		if commonKey == "" {
 			conn.WriteJSON(map[string]interface{}{
 				"cmd":  "authorize",

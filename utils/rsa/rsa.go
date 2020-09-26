@@ -4,46 +4,60 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"errors"
-	"github.com/zhanghuizong/bitgame/constants"
+	"github.com/zhanghuizong/bitgame/utils/base64"
 	"strings"
 )
 
-// 解密
-func Decode(ciphertext []byte) ([]byte, error) {
-	// 将密钥解析成私钥实例
-	block, _ := pem.Decode(constants.PrivateKey)
+// 加密
+func Encode(originData string, publicKey string) (string, error) {
+	block, _ := pem.Decode([]byte(publicKey))
 	if block == nil {
-		return nil, errors.New("private key error")
+		return "", errors.New("public key error")
+	}
+
+	pubInterface, pErr := x509.ParsePKIXPublicKey(block.Bytes)
+	if pErr != nil {
+		return "", pErr
+	}
+
+	pub := pubInterface.(*rsa.PublicKey)
+	res, dErr := rsa.EncryptPKCS1v15(rand.Reader, pub, []byte(originData))
+	if dErr != nil {
+		return "", dErr
+	}
+
+	return base64.Encode(string(res)), nil
+}
+
+// 解密
+func Decode(originData string, privateKey string) (string, error) {
+	originData = base64.Decode(originData)
+
+	// 将密钥解析成私钥实例
+	block, _ := pem.Decode([]byte(privateKey))
+	if block == nil {
+		return "", errors.New("private key error")
 	}
 
 	// 解析pem.Decode（）返回的Block指针实例
-	pri, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		return nil, err
+	pri, pErr := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if pErr != nil {
+		return "", pErr
 	}
 
-	return rsa.DecryptPKCS1v15(rand.Reader, pri, ciphertext) //RSA算法解密
+	res, dErr := rsa.DecryptPKCS1v15(rand.Reader, pri, []byte(originData))
+	if dErr != nil {
+		return "", dErr
+	}
+
+	return string(res), nil
 }
 
-// rsa 认证
-func Authorize(auth string) string {
-	auth = replaceSpace(auth)
-	desc, err1 := base64.StdEncoding.DecodeString(auth)
-	if err1 != nil {
-		return ""
-	}
+// Rsa 认证
+func Authorize(originData string, privateKey string) (string, error) {
+	originData = strings.Join(strings.Split(originData, " "), "+")
 
-	commonKey, err2 := Decode(desc)
-	if err2 != nil {
-		return ""
-	}
-
-	return string(commonKey)
-}
-
-func replaceSpace(s string) string {
-	return strings.Join(strings.Split(s, " "), "+")
+	return Decode(originData, privateKey)
 }
