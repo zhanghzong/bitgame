@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/utils/base64"
 	"strings"
 )
@@ -56,8 +57,9 @@ func Decode(originData string, privateKey string) (string, error) {
 }
 
 // Rsa 认证
-func Authorize(originData string, privateKey string) (string, error) {
+func Authorize(originData string) (string, error) {
+	key := viper.GetString("app.rsa.private")
 	originData = strings.Join(strings.Split(originData, " "), "+")
 
-	return Decode(originData, privateKey)
+	return Decode(originData, key)
 }

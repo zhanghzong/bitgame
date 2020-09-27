@@ -3,13 +3,24 @@ package java
 import (
 	"encoding/json"
 	"github.com/spf13/viper"
-	"github.com/zhanghuizong/bitgame/utils/rsa"
+	"github.com/wenzhenxi/gorsa"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 	"time"
 )
+
+// rsa加密
+func encode(originData string) string {
+	publicKey := viper.GetString("java.rsa.public")
+	res, err := gorsa.PublicEncrypt(originData, publicKey)
+	if err != nil {
+		return ""
+	}
+
+	return res
+}
 
 func post(api string, data map[string]interface{}) string {
 	host := viper.GetString("java.serverApi")
@@ -21,7 +32,7 @@ func post(api string, data map[string]interface{}) string {
 	jsonRes, _ := json.Marshal(data)
 	dataStr := string(jsonRes)
 
-	sign, _ := rsa.Encode(dataStr, viper.GetString("java.pubKey"))
+	sign := encode(dataStr)
 	reqData := map[string]interface{}{
 		"sign": sign,
 	}
