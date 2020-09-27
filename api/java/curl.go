@@ -22,24 +22,34 @@ func encode(originData string) string {
 	return res
 }
 
-func post(api string, data map[string]interface{}) string {
+func post(api string, data map[string]interface{}) (string, error) {
 	host := viper.GetString("java.serverApi")
 	url := host + api
 
 	client := &http.Client{}
 	client.Timeout = time.Second * 3
 
-	jsonRes, _ := json.Marshal(data)
-	dataStr := string(jsonRes)
+	jsonRes, jErr := json.Marshal(data)
+	if jErr != nil {
+		return "", jErr
+	}
 
+	dataStr := string(jsonRes)
 	sign := encode(dataStr)
 	reqData := map[string]interface{}{
 		"sign": sign,
 	}
-	log.Println("请求接口数据", url, dataStr)
+	log.Println("请求接口数据", dataStr, url)
 
-	bodyJson, _ := json.Marshal(reqData)
-	req, _ := http.NewRequest("POST", url, strings.NewReader(string(bodyJson)))
+	bodyJson, mErr := json.Marshal(reqData)
+	if mErr != nil {
+		return "", mErr
+	}
+
+	req, rErr := http.NewRequest("POST", url, strings.NewReader(string(bodyJson)))
+	if rErr != nil {
+		return "", rErr
+	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("apiKey", viper.GetString("java.apiKey"))
@@ -47,17 +57,17 @@ func post(api string, data map[string]interface{}) string {
 	resp, clientErr := client.Do(req)
 	if clientErr != nil {
 		log.Println("POST 请求接口异常", url, clientErr)
-		return ""
+		return "", clientErr
 	}
 
 	body, readErr := ioutil.ReadAll(resp.Body)
 	if readErr != nil {
 		log.Println("POST 读取响应数据异常", url, readErr)
-		return ""
+		return "", readErr
 	}
 
 	bodyStr := string(body)
 	log.Println("请求接口响应数据", url, bodyStr)
 
-	return bodyStr
+	return bodyStr, nil
 }
