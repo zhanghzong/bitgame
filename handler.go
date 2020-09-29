@@ -1,19 +1,19 @@
 package bitgame
 
 import (
-	"github.com/zhanghuizong/bitgame/structs"
+	"github.com/zhanghuizong/bitgame/app/structs"
 	"sync"
 )
 
-type disposeFunc func(client *Client, message *structs.RequestMsg)
+type functions func(client *Client, message *structs.RequestMsg)
 
 var (
-	handlers        = make(map[string]disposeFunc)
+	handlers        = make(map[string]functions)
 	handlersRWMutex sync.RWMutex
 )
 
 // 注册
-func Register(key string, value disposeFunc) {
+func Register(key string, value functions) {
 	handlersRWMutex.Lock()
 	defer handlersRWMutex.Unlock()
 	handlers[key] = value
@@ -22,7 +22,7 @@ func Register(key string, value disposeFunc) {
 }
 
 // 获取
-func getHandlers(key string) (value disposeFunc, ok bool) {
+func getHandlers(key string) (value functions, ok bool) {
 	handlersRWMutex.RLock()
 	defer handlersRWMutex.RUnlock()
 

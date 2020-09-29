@@ -2,11 +2,21 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/spf13/viper"
-	"github.com/zhanghuizong/bitgame/structs"
+	"github.com/zhanghuizong/bitgame/app/structs"
 	"github.com/zhanghuizong/bitgame/utils/aes"
 	"log"
+	"strings"
 )
+
+func GetRedisPrefix() string {
+	gameId := viper.GetString("java.gameId")
+	env := strings.ToLower(viper.GetString("app.env"))
+
+	// 构建 Redis 前缀
+	return fmt.Sprintf("%s:%s", gameId, env)
+}
 
 func IsAuth() bool {
 	return viper.GetBool("app.auth")

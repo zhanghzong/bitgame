@@ -1,5 +1,11 @@
 package structs
 
+// 接受消息结构体
+type RequestMsg struct {
+	Cmd    string                 `json:"cmd"`
+	Params map[string]interface{} `json:"params"`
+}
+
 //{
 //	"data": {
 //		"domain": "btgame.club",
@@ -15,7 +21,13 @@ package structs
 //	"exp": 1601296712,
 //	"iat": 1600691912
 //}
-type RequestJwtData struct {
+type ParamJwt struct {
+	Data ParamJwtData `json:"data"`
+	Exp  int          `json:"exp"`
+	Iat  int          `json:"iat"`
+}
+
+type ParamJwtData struct {
 	Domain     string `json:"domain"`
 	Email      string `json:"email"`
 	OpenId     string `json:"open_id"`
@@ -25,16 +37,4 @@ type RequestJwtData struct {
 	Timestamp  int    `json:"timestamp"`
 	Uid        string `json:"uid"`
 	UserId     int    `json:"user_id"`
-}
-
-type RequestJwt struct {
-	Data RequestJwtData `json:"data"`
-	Exp  int            `json:"exp"`
-	Iat  int            `json:"iat"`
-}
-
-// 接受消息结构体
-type RequestMsg struct {
-	Cmd    string                 `json:"cmd"`
-	Params map[string]interface{} `json:"params"`
 }

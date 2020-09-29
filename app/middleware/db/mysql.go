@@ -5,7 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/spf13/viper"
-	"github.com/zhanghuizong/bitgame/constants/envs"
+	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"log"
 )
 
@@ -31,7 +31,7 @@ func Init() {
 
 	// 打印 SQL 语句
 	env := viper.GetString("app.env")
-	if env != envs.Prod {
+	if env != envConst.Prod {
 		Db.LogMode(true)
 	}
 }

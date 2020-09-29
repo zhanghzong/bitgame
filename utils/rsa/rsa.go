@@ -11,27 +11,6 @@ import (
 	"strings"
 )
 
-// 加密
-func Encode(originData string, publicKey string) (string, error) {
-	block, _ := pem.Decode([]byte(publicKey))
-	if block == nil {
-		return "", errors.New("public key error")
-	}
-
-	pubInterface, pErr := x509.ParsePKIXPublicKey(block.Bytes)
-	if pErr != nil {
-		return "", pErr
-	}
-
-	pub := pubInterface.(*rsa.PublicKey)
-	res, dErr := rsa.EncryptPKCS1v15(rand.Reader, pub, []byte(originData))
-	if dErr != nil {
-		return "", dErr
-	}
-
-	return base64.Encode(string(res)), nil
-}
-
 // 解密
 func Decode(originData string, privateKey string) (string, error) {
 	originData = base64.Decode(originData)

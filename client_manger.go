@@ -1,16 +1,20 @@
 package bitgame
 
+import "github.com/zhanghuizong/bitgame/app/models/login"
+
 type ClientManager struct {
-	// Registered clients.
+	// 客户端
+	// socketId<=>client
 	clients map[string]*Client
 
-	// Register requests from the clients.
+	// 监听客户注册请求
 	Register chan *Client
 
-	// Unregister requests from clients.
+	// 监听客户端退出
 	Unregister chan *Client
 
 	// 用户与客户ID绑定关系
+	// userID<=>socketId
 	UserList map[string]string
 }
 
@@ -28,21 +32,30 @@ func (h *ClientManager) Run() {
 		select {
 		// 客户登录
 		case client := <-h.Register:
-			h.clients[client.Id] = client
+			h.clients[client.SocketId] = client
 
 		// 客户端退出
 		case client := <-h.Unregister:
-			if _, ok := h.clients[client.Id]; ok {
-				delete(h.clients, client.Id)
+			if _, ok := h.clients[client.SocketId]; ok {
+				model := new(login.Model)
+				model.DelSocketId(client.Uid)
+
+				delete(h.clients, client.SocketId)
 				delete(h.UserList, client.Uid)
-				close(client.Send)
+				close(client.send)
 			}
 		}
 	}
 }
 
-func (h *ClientManager) GetClient(uid string) *Client {
+func (h *ClientManager) GetClientByUserId(uid string) *Client {
 	id, _ := h.UserList[uid]
 
 	return h.clients[id]
+}
+
+func (h *ClientManager) GetClientBySocketId(socketId string) *Client {
+	client, _ := h.clients[socketId]
+
+	return client
 }

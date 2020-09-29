@@ -8,9 +8,8 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/zhanghuizong/bitgame/structs"
+	"github.com/zhanghuizong/bitgame/app/structs"
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/aes"
 	"log"
@@ -25,7 +24,7 @@ const (
 	// Time allowed to read the next pong message from the peer.
 	pongWait = 60 * time.Second
 
-	// Send pings to peer with this period. Must be less than pongWait.
+	// send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
 
 	// Maximum message size allowed from peer.
@@ -37,10 +36,9 @@ var (
 	space   = []byte{' '}
 )
 
-// Client is a middleman between the gws connection and the ClientManager.
 type Client struct {
 	// 客户端ID
-	Id string
+	SocketId string
 
 	// 用户ID
 	Uid string
@@ -49,19 +47,28 @@ type Client struct {
 	CommonKey string
 
 	// 协议默认参数
-	RequestJwt structs.RequestJwt
+	ParamJwt structs.ParamJwt
 
 	// 管理
 	Hub *ClientManager
 
-	// The gws connection.
-	Conn *websocket.Conn
-
-	// 当前上下文
-	Context *gin.Context
+	// websocket 连接资源
+	conn *websocket.Conn
 
 	// Buffered channel of outbound messages.
-	Send chan []byte
+	send chan []byte
+}
+
+func clientExit(c *Client) {
+	if c == nil {
+		return
+	}
+
+	c.Hub.Unregister <- c
+	cErr := c.conn.Close()
+	if cErr != nil {
+		log.Println("接受消息 websocket 断开连接异常", cErr)
+	}
 }
 
 // 接受消息
@@ -69,26 +76,47 @@ func (c *Client) read() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Println("接受消息异常-read：", err, string(debug.Stack()))
+			log.Println("接受消息异常：", err, string(debug.Stack()))
 		}
 	}()
 
 	defer func() {
-		c.Hub.Unregister <- c
-		cErr := c.Conn.Close()
-		if cErr != nil {
-			log.Println("接受消息 websocket 断开连接异常", cErr)
-		}
+		clientExit(c)
 	}()
 
-	c.Conn.SetReadLimit(maxMessageSize)
-	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
-	c.Conn.SetPongHandler(func(string) error { c.Conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	if pongWaitErr != nil {
+		log.Println("设置 SetReadDeadline 异常", pongWaitErr)
+		return
+	}
+
+	// 设置 读取消息体大小
+	c.conn.SetReadLimit(maxMessageSize)
+
+	// 设置 pong 方法
+	c.conn.SetPongHandler(func(string) error {
+		pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		if pongWaitErr != nil {
+			log.Println("设置 SetPongHandler.SetReadDeadline 异常", pongWaitErr)
+		}
+		return nil
+	})
+
+	// 设置 websocket 离线处理
+	c.conn.SetCloseHandler(func(code int, text string) error {
+		value, ok := getHandlers("offline")
+		if ok {
+			value(c, nil)
+		}
+
+		return nil
+	})
+
 	for {
-		_, message, err := c.Conn.ReadMessage()
+		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v\n", err)
+				log.Println("websocket IsUnexpectedCloseError", err)
 			}
 			break
 		}
@@ -104,45 +132,54 @@ func (c *Client) write() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Println("发送消息异常-write：", err, string(debug.Stack()))
+			log.Println("发送消息异常", err, string(debug.Stack()))
 		}
 	}()
 
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		c.Hub.Unregister <- c
+		clientExit(c)
 		ticker.Stop()
 	}()
 
 	for {
 		select {
-		case message, ok := <-c.Send:
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if !ok {
-				// The ClientManager closed the channel.
-				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+		case message, ok := <-c.send:
+			writeErr := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if writeErr != nil {
+				log.Println("设置 websocket 超时等待时间异常", writeErr)
 				return
 			}
 
-			w, err := c.Conn.NextWriter(websocket.TextMessage)
+			if !ok {
+				closeErr := c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				if closeErr != nil {
+					log.Println("发送 websocket close 命令异常", closeErr, ok)
+				}
+				return
+			}
+
+			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
-			w.Write(message)
 
-			// Add queued chat messages to the current gws message.
-			n := len(c.Send)
-			for i := 0; i < n; i++ {
-				w.Write(newline)
-				w.Write(<-c.Send)
+			_, wErr := w.Write(message)
+			if wErr != nil {
+				log.Println("websocket 发送消息异常", wErr, message)
 			}
 
 			if err := w.Close(); err != nil {
 				return
 			}
 		case <-ticker.C:
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			writeErr := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if writeErr != nil {
+				log.Println("设置 websocket 超时等待时间异常,ticker", writeErr)
+				return
+			}
+
+			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
 		}
@@ -163,5 +200,20 @@ func (c *Client) SendMsg(data interface{}) {
 		jsonByte = []byte("0" + base64.StdEncoding.EncodeToString(encodeRes))
 	}
 
-	c.Send <- jsonByte
+	c.send <- jsonByte
+}
+
+// 系统错误消息推送
+func (c *Client) pushError(data map[string]interface{}) {
+	pushError(c, data)
+}
+
+// 系统错误消息推送
+func pushError(c *Client, res map[string]interface{}) {
+	data := map[string]interface{}{
+		"cmd": "conn::error",
+		"res": res,
+	}
+
+	c.SendMsg(data)
 }
