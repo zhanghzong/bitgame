@@ -1,5 +1,7 @@
 # bitgame
 
+包名称：`github.com/zhanghuizong/bitgame`
+
 ## 实现功能
 
 - websocket
@@ -24,16 +26,77 @@ require (
 
 # 业务逻辑层次结构
 
-> 注意：后续会提供脚手架，一键生成
+> 注意：后续会提供脚手架，一键生成。统一采用
 
 ```
 ├── README.md
 ├── app
 │     ├── app.go
 │     ├── constants
+│     │     ├── errConst
+│     │     ├── redisConst
+│     │     ├── roomConst
+│     │     └── userConst
 │     ├── controllers
+│     │     ├── hall.go
+│     │     ├── offline.go
+│     │     ├── online.go
+│     │     ├── room.go
+│     │     └── user.go
 │     ├── logics
+│     │     ├── GameLogic
+│     │     ├── HallLogic
+│     │     ├── RoomLogic
+│     │     └── UserLogic
 │     ├── models
+│     │     ├── RoomModel
+│     │     ├── UserModel
+│     │     └── model.go
+│     └── utils
+│         └── utils.go
+├── app.go
+├── config
+│     ├── app.yaml
+│     └── app.yaml.example
+├── go.mod
+├── go.sum
+├── go_build_game.exe
+├── main.go
+├── routes
+│     ├── web_routes.go
+│     └── ws_routes.go
+└── test
+    ├── crypto-js.js
+    ├── jsencrypt.js
+    ├── test.html
+    └── utils.js
+
+19 directories, 22 files
+zhanghuizong@DESKTOP-FD0NVQI:/mnt/d/workspaces/go_game_server$ tree -L 4
+.
+├── README.md
+├── app
+│     ├── app.go
+│     ├── constants
+│     │     ├── errConst
+│     │     ├── redisConst
+│     │     ├── roomConst
+│     │     └── userConst
+│     ├── controllers
+│     │     ├── hall.go
+│     │     ├── offline.go
+│     │     ├── online.go
+│     │     ├── room.go
+│     │     └── user.go
+│     ├── logics
+│     │     ├── GameLogic
+│     │     ├── HallLogic
+│     │     ├── RoomLogic
+│     │     └── UserLogic
+│     ├── models
+│     │     ├── RoomModel
+│     │     ├── UserModel
+│     │     └── model.go
 │     └── utils
 ├── app.go
 ├── config
@@ -51,3 +114,16 @@ require (
     ├── test.html
     └── utils.js
 ```
+
+# 安装
+
+```
+go get -u github.com/zhanghuizong/bitgame 
+```
+
+## 说明
+1. 提交代码需要去 github 打最新版本 `tag`，否则无法生效
+2. 执行完 go get 命令后，会将代码打包上传到 `go.dev` 网站
+
+## 后续
+- 计划搭建内网私有源
