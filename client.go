@@ -107,6 +107,9 @@ func (c *Client) read() {
 			value(c, nil)
 		}
 
+		// TODO
+		// 删除 redis 登录记录
+
 		return nil
 	})
 
