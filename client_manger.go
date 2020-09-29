@@ -1,7 +1,5 @@
 package bitgame
 
-import "github.com/zhanghuizong/bitgame/app/models/login"
-
 type ClientManager struct {
 	// 客户端
 	// socketId<=>client
@@ -37,9 +35,6 @@ func (h *ClientManager) Run() {
 		// 客户端退出
 		case client := <-h.Unregister:
 			if _, ok := h.clients[client.SocketId]; ok {
-				model := new(login.Model)
-				model.DelSocketId(client.Uid)
-
 				delete(h.clients, client.SocketId)
 				delete(h.UserList, client.Uid)
 				close(client.send)

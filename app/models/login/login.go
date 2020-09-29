@@ -23,22 +23,12 @@ func (t Model) AddSocketId(uid string, socketId string) {
 
 func (t Model) GetSocketId(uid string) string {
 	key := utils.GetRedisPrefix() + singleLogin
-	cmd := redis.Redis.HGet(key, uid)
-	val, err := cmd.Result()
-	if err != nil {
-		log.Println("获取 用户与websocket绑定关系 Redis 异常", err, key, uid)
-	}
-
-	return val
+	return redis.Redis.HGet(key, uid).Val()
 }
 
 func (t Model) DelSocketId(uid string) int {
 	key := utils.GetRedisPrefix() + singleLogin
-	cmd := redis.Redis.HDel(key, uid)
-	val, err := cmd.Result()
-	if err != nil {
-		log.Println("删除 用户与websocket绑定关系 Redis 异常", err, key, uid)
-	}
+	val := redis.Redis.HDel(key, uid).Val()
 
 	return int(val)
 }

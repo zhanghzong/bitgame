@@ -59,16 +59,13 @@ type Client struct {
 	send chan []byte
 }
 
-func clientExit(c *Client) {
+func closeClient(c *Client) {
 	if c == nil {
 		return
 	}
 
 	c.Hub.Unregister <- c
-	cErr := c.conn.Close()
-	if cErr != nil {
-		log.Println("接受消息 websocket 断开连接异常", cErr)
-	}
+	c.conn.Close()
 }
 
 // 接受消息
@@ -81,7 +78,9 @@ func (c *Client) read() {
 	}()
 
 	defer func() {
-		clientExit(c)
+		closeClient(c)
+
+		log.Println("...............接受消息..............")
 	}()
 
 	pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -95,15 +94,14 @@ func (c *Client) read() {
 
 	// 设置 pong 方法
 	c.conn.SetPongHandler(func(string) error {
-		pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
-		if pongWaitErr != nil {
-			log.Println("设置 SetPongHandler.SetReadDeadline 异常", pongWaitErr)
-		}
+		c.conn.SetReadDeadline(time.Now().Add(pongWait))
 		return nil
 	})
 
 	// 设置 websocket 离线处理
 	c.conn.SetCloseHandler(func(code int, text string) error {
+		log.Println("............设置 websocket 离线处理....................", code, text)
+
 		value, ok := getHandlers("offline")
 		if ok {
 			value(c, nil)
@@ -138,26 +136,21 @@ func (c *Client) write() {
 
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		clientExit(c)
+		closeClient(c)
 		ticker.Stop()
+
+		log.Println("............发送消息............")
 	}()
 
 	for {
 		select {
 		case message, ok := <-c.send:
-			writeErr := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if writeErr != nil {
-				log.Println("设置 websocket 超时等待时间异常", writeErr)
+			if !ok {
+				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			if !ok {
-				closeErr := c.conn.WriteMessage(websocket.CloseMessage, []byte{})
-				if closeErr != nil {
-					log.Println("发送 websocket close 命令异常", closeErr, ok)
-				}
-				return
-			}
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
@@ -173,11 +166,7 @@ func (c *Client) write() {
 				return
 			}
 		case <-ticker.C:
-			writeErr := c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if writeErr != nil {
-				log.Println("设置 websocket 超时等待时间异常,ticker", writeErr)
-				return
-			}
+			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return

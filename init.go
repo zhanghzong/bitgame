@@ -9,7 +9,7 @@ import (
 	"runtime/debug"
 )
 
-var wsManager *ClientManager
+var WsManager *ClientManager
 
 // 初始配置文件
 func init() {
@@ -22,8 +22,8 @@ func init() {
 		os.Exit(0)
 	}
 
-	wsManager = NewHub()
-	go wsManager.Run()
+	WsManager = NewHub()
+	go WsManager.Run()
 
 	// 启动 MySQL 服务
 	db.Init()

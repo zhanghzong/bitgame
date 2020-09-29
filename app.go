@@ -61,7 +61,7 @@ func ServeWs(context *gin.Context) {
 	client := &Client{}
 	client.SocketId = guid
 	client.CommonKey = commonKey
-	client.Hub = wsManager
+	client.Hub = WsManager
 	client.conn = conn
 	client.send = make(chan []byte, 1024)
 

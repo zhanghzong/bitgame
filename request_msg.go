@@ -14,7 +14,7 @@ import (
 
 func parseMsg(c *Client, message []byte) {
 	if utils.IsAuth() && c.CommonKey == "" {
-		clientExit(c)
+		closeClient(c)
 		log.Println("客户未进行认证, common-key 为空")
 		return
 	}
@@ -62,7 +62,6 @@ func parseMsg(c *Client, message []byte) {
 		// 首次连接
 		if c.Uid == "" {
 			c.Uid = c.ParamJwt.Data.Uid
-			c.Hub.UserList[c.Uid] = c.SocketId
 
 			// websocket hook 上线操作
 			value, ok := getHandlers("online")
@@ -71,10 +70,7 @@ func parseMsg(c *Client, message []byte) {
 			}
 
 			// 异地登录检测
-			isLogin := singleLogin(c)
-			if isLogin {
-				return
-			}
+			singleLogin(c)
 		}
 	}
 
@@ -99,23 +95,39 @@ func parseMsg(c *Client, message []byte) {
 }
 
 // 单点登录
-func singleLogin(c *Client) bool {
+func singleLogin(c *Client) {
 	uid := c.Uid
 
 	model := new(login.Model)
 	oldSocketId := model.GetSocketId(uid)
+
 	if oldSocketId != "" {
-		oldClient := wsManager.GetClientBySocketId(oldSocketId)
+		oldClient := WsManager.GetClientBySocketId(oldSocketId)
 		if oldClient != nil {
 			oldClient.pushError(errConst.AlreadyLogin)
 
 			time.AfterFunc(time.Second*3, func() {
-				clientExit(oldClient)
+				closeOtherClient(oldClient)
 			})
 		}
 	}
 
 	model.AddSocketId(uid, c.SocketId)
 
-	return false
+	// 绑定 uid与socketId
+	c.Hub.UserList[c.Uid] = c.SocketId
+}
+
+func closeOtherClient(c *Client) {
+	if c == nil {
+		return
+	}
+
+	// 手动触发离线事件
+	method := c.conn.CloseHandler()
+	if method != nil {
+		method(1, "异地登录关闭")
+	}
+
+	closeClient(c)
 }
