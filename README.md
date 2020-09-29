@@ -7,7 +7,7 @@
 - websocket
     - 路由分发
     - 异地登录
-- 通讯协议加解密
+    - 通讯协议加解密
 - MySQL
 - Redis
 - websocket hook (online|offline)
@@ -120,6 +120,8 @@ zhanghuizong@DESKTOP-FD0NVQI:/mnt/d/workspaces/go_game_server$ tree -L 4
 ```
 go get -u github.com/zhanghuizong/bitgame 
 ```
+
+> 在实际开发中，可以将代码复制 `gopath` 目录对应位置，可避免反复安装过程
 
 ## 说明
 1. 提交代码需要去 github 打最新版本 `tag`，否则无法生效
