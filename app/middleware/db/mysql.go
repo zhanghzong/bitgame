@@ -13,7 +13,8 @@ var (
 	Db *gorm.DB
 )
 
-func Init() {
+// MySQL 数据初始化
+func init() {
 	host := viper.GetString("mysql.host")
 	user := viper.GetString("mysql.user")
 	passwd := viper.GetString("mysql.passwd")

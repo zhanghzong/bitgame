@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package bitgame
+package http
 
 import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"github.com/zhanghuizong/bitgame/app/models/login"
 	"github.com/zhanghuizong/bitgame/app/structs"
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/aes"
@@ -79,8 +80,6 @@ func (c *Client) read() {
 
 	defer func() {
 		closeClient(c)
-
-		log.Println("...............接受消息..............")
 	}()
 
 	pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -100,15 +99,23 @@ func (c *Client) read() {
 
 	// 设置 websocket 离线处理
 	c.conn.SetCloseHandler(func(code int, text string) error {
-		log.Println("............设置 websocket 离线处理....................", code, text)
+		model := new(login.Model)
+		uid := c.Uid
+		connSocketId := model.GetSocketId(uid)
+		if connSocketId != c.SocketId {
+			return nil
+		}
 
+		log.Println("............设置 websocket 离线处理....................", code, text, c.Uid, c.SocketId)
+
+		// offline
 		value, ok := getHandlers("offline")
 		if ok {
 			value(c, nil)
 		}
 
-		// TODO
 		// 删除 redis 登录记录
+		model.DelSocketId(uid)
 
 		return nil
 	})
@@ -141,8 +148,6 @@ func (c *Client) write() {
 	defer func() {
 		closeClient(c)
 		ticker.Stop()
-
-		log.Println("............发送消息............")
 	}()
 
 	for {

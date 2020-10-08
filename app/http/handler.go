@@ -1,4 +1,4 @@
-package bitgame
+package http
 
 import (
 	"github.com/zhanghuizong/bitgame/app/structs"

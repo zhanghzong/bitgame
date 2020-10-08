@@ -1,4 +1,4 @@
-package bitgame
+package http
 
 import (
 	"encoding/json"
@@ -102,7 +102,7 @@ func singleLogin(c *Client) {
 	oldSocketId := model.GetSocketId(uid)
 
 	if oldSocketId != "" {
-		oldClient := WsManager.GetClientBySocketId(oldSocketId)
+		oldClient := c.Hub.GetClientBySocketId(oldSocketId)
 		if oldClient != nil {
 			oldClient.pushError(errConst.AlreadyLogin)
 
