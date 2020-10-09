@@ -10,8 +10,8 @@ import (
 func Encode(data interface{}, secret string) string {
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"data": data,
-		"iat":  time.Now().Unix(),                       // 签发时间
-		"exp":  time.Now().Add(time.Minute * 15).Unix(), // 过期时间
+		"iat":  time.Now().Unix(),                         // 签发时间
+		"exp":  time.Now().Add(time.Hour * 24 * 2).Unix(), // 过期时间
 	})
 	token, err := at.SignedString([]byte(secret))
 	if err != nil {
