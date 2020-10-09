@@ -66,6 +66,6 @@ func (h *ClientManager) RedisDispatch(msg *structs.RedisChannel) {
 			continue
 		}
 
-		client.SendMsg(msg.Data)
+		client.sendMsg(msg.Data)
 	}
 }

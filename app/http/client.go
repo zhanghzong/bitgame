@@ -184,12 +184,14 @@ func (c *Client) write() {
 }
 
 // 消息单播
-func (c *Client) SendMsg(data interface{}) {
+func (c *Client) sendMsg(data interface{}) {
 	jsonByte, err := json.Marshal(data)
 	if err != nil {
-		log.Fatalln("SendMsg, JSON 编码异常", err, string(debug.Stack()))
+		log.Fatalln("sendMsg, JSON 编码异常", err, string(debug.Stack()))
 		return
 	}
+
+	log.Println("消息推送", c.Uid, string(jsonByte))
 
 	// 启用加密传输
 	if utils.IsAuth() {
@@ -200,17 +202,36 @@ func (c *Client) SendMsg(data interface{}) {
 	c.send <- jsonByte
 }
 
-// 系统错误消息推送
-func (c *Client) pushError(data map[string]interface{}) {
-	pushError(c, data)
+// 统一消息推送格式
+// 正确消息单播
+func (c *Client) Success(cmd string, data interface{}) {
+	res := pushSuccess(cmd, data)
+
+	c.sendMsg(res)
 }
 
-// 系统错误消息推送
-func pushError(c *Client, res map[string]interface{}) {
-	data := map[string]interface{}{
-		"cmd": "conn::error",
-		"res": res,
-	}
+// 统一消息推送格式
+// 错误消息单播
+func (c *Client) Error(cmd string, row structs.ErrMsgStruct) {
+	res := pushError(cmd, row)
 
-	c.SendMsg(data)
+	c.sendMsg(res)
+}
+
+// 统一消息推送格式
+// uid 模式消息推送
+func (c *Client) PushUid(uid string, cmd string, data interface{}) {
+	single(uid, cmd, data)
+}
+
+// 统一消息推送格式
+// uid 模式消息推送
+func (c *Client) PushUsers(users []string, cmd string, data interface{}) {
+	broadcast(users, cmd, data)
+}
+
+// websocket 系统内部错（兼容历史数据格式）
+// 系统错误消息推送
+func (c *Client) insidePushError(data map[string]interface{}) {
+	insidePushError(c, data)
 }

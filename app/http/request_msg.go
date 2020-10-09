@@ -22,14 +22,14 @@ func parseMsg(c *Client, message []byte) {
 	// 解析消息体
 	requestMsg := utils.GetRequestMsg(message, c.CommonKey)
 	if requestMsg == nil {
-		c.pushError(errConst.BadCmd)
+		c.insidePushError(errConst.BadCmd)
 		return
 	}
 
 	// 没有 CMD
 	cmd := requestMsg.Cmd
 	if cmd == "" {
-		c.pushError(errConst.NoCmd)
+		c.insidePushError(errConst.NoCmd)
 		return
 	}
 
@@ -39,14 +39,14 @@ func parseMsg(c *Client, message []byte) {
 		jwtRes := jwt.Decode(params["jwt"].(string), viper.GetString("jwt.key"))
 		jwtStr, jwtErr := json.Marshal(jwtRes)
 		if jwtErr != nil {
-			c.pushError(errConst.BadJwtToken)
+			c.insidePushError(errConst.BadJwtToken)
 			return
 		}
 
 		jwtData := structs.ParamJwt{}
 		jsonErr := json.Unmarshal(jwtStr, &jwtData)
 		if jsonErr != nil {
-			c.pushError(errConst.BadJwtToken)
+			c.insidePushError(errConst.BadJwtToken)
 			return
 		}
 
@@ -55,7 +55,7 @@ func parseMsg(c *Client, message []byte) {
 
 		// 参数异常
 		if c.ParamJwt.Data.Uid == "" {
-			c.pushError(errConst.BadJwtToken)
+			c.insidePushError(errConst.BadJwtToken)
 			return
 		}
 
@@ -87,7 +87,7 @@ func parseMsg(c *Client, message []byte) {
 
 	value, ok := getHandlers(cmd)
 	if ok == false {
-		c.pushError(errConst.NoCmd)
+		c.insidePushError(errConst.NoCmd)
 		return
 	}
 
@@ -104,7 +104,7 @@ func singleLogin(c *Client) {
 	if oldSocketId != "" {
 		oldClient := c.Hub.GetClientBySocketId(oldSocketId)
 		if oldClient != nil {
-			oldClient.pushError(errConst.AlreadyLogin)
+			oldClient.insidePushError(errConst.AlreadyLogin)
 
 			time.AfterFunc(time.Second*3, func() {
 				closeOtherClient(oldClient)
