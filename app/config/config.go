@@ -13,9 +13,23 @@ var RedisPrefix string
 
 // 初始配置文件
 func init() {
-	viper.SetConfigName("config/app")
-	viper.AddConfigPath(".")
+	pwd, pwdErr := os.Getwd()
+	if pwdErr != nil {
+		return
+	}
 
+	// 配置映射
+	// 1. 项目应用配置
+	// 2. 外部注入
+	_, fileErr := os.Stat(pwd + string(os.PathSeparator) + "app.yaml")
+	if fileErr == nil || !os.IsNotExist(fileErr) {
+		viper.SetConfigName("app")
+	} else {
+		viper.SetConfigName("config/app")
+	}
+
+	// 添加配置搜索路径
+	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Println("配置文件加载异常：", err, string(debug.Stack()))
