@@ -10,6 +10,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/rs/xid v1.2.1
 	github.com/spf13/viper v1.7.1
-	github.com/tidwall/gjson v1.6.1
 	github.com/wenzhenxi/gorsa v0.0.0-20191231021121-58a13482fb09 // indirect
+	github.com/sirupsen/logrus v1.7.0
+	github.com/antonfisher/nested-logrus-formatter v1.3.0
 )

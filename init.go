@@ -1,5 +1,7 @@
 package bitgame
 
+import _ "github.com/zhanghuizong/bitgame/app/logs"
+
 import (
 	_ "github.com/zhanghuizong/bitgame/app/config"
 	"github.com/zhanghuizong/bitgame/app/http"
