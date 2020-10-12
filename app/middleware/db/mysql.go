@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/envConst"
-	"github.com/zhanghuizong/bitgame/app/logs"
 )
 
 var (
@@ -26,7 +26,7 @@ func init() {
 	var err error
 	Db, err = gorm.Open("mysql", dsn)
 	if err != nil {
-		logs.Log.Fatalf("MySQL 连接异常,err:%s", err)
+		logrus.Fatalf("MySQL 连接异常,err:%s", err)
 		return
 	}
 
@@ -36,5 +36,5 @@ func init() {
 		Db.LogMode(true)
 	}
 
-	logs.Log.Infof("MySQL 连接成功. dsn:%s", dsn)
+	logrus.Infof("MySQL 连接成功. dsn:%s", dsn)
 }

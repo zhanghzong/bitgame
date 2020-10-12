@@ -5,19 +5,17 @@ import (
 	"github.com/rs/xid"
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
-	"github.com/zhanghuizong/bitgame/app/logs"
 	"github.com/zhanghuizong/bitgame/app/models/login"
 	"github.com/zhanghuizong/bitgame/app/structs"
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/jwt"
-	"log"
 	"time"
 )
 
 func parseMsg(c *Client, message []byte) {
 	if utils.IsAuth() && c.commonKey == "" {
 		closeClient(c)
-		log.Println("客户未进行认证, common-key 为空")
+		c.Log.Warnf("客户未进行认证, common-key 为空")
 		return
 	}
 
@@ -85,7 +83,8 @@ func parseMsg(c *Client, message []byte) {
 		"message": requestMsg,
 		"jwt":     c.ParamJwt,
 	})
-	log.Printf("接受消息:%s\n", msgJson)
+
+	c.Log.Infof("接收消息:%s", msgJson)
 
 	value, ok := getHandlers(cmd)
 	if ok == false {
@@ -93,12 +92,12 @@ func parseMsg(c *Client, message []byte) {
 		return
 	}
 
-	// 请求ID
-	requestId := xid.New().String()
-	c.Log = logs.Log.WithFields(map[string]interface{}{
-		"rid": requestId,
-		"uid": c.Uid,
-	})
+	_, isOk := c.Log.Data["uid"]
+	if isOk {
+		c.Log.Data["rid"] = xid.New().String() // 请求ID
+	}
+
+	c.Log.Data["uid"] = c.Uid
 
 	value(c, requestMsg)
 }

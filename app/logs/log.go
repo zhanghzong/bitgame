@@ -7,19 +7,21 @@ import (
 	"time"
 )
 
-var Log *logrus.Logger
-
 func init() {
-	Log = logrus.New()
-	Log.SetFormatter(getTextFormatter())
+	// 设置日志格式
+	logrus.SetFormatter(getTextFormatter())
 
+	// 设置日志输出流
 	name := getFileName()
 	file, err := os.OpenFile("logs/"+name, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err == nil {
-		Log.Out = file
-	} else {
-		Log.Out = os.Stdout
+		logrus.SetOutput(file)
 	}
+
+	// 设置日志级别
+	logrus.SetLevel(logrus.DebugLevel)
+
+	// TODO Hooks
 }
 
 func getFileName() string {

@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/rs/xid"
+	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/rsa"
 	"log"
@@ -22,7 +23,7 @@ var upgrader = websocket.Upgrader{
 func ServeWs(context *gin.Context) {
 	conn, err := upgrader.Upgrade(context.Writer, context.Request, nil)
 	if err != nil {
-		log.Println("Websocket 协议升级异常：", err)
+		logrus.Errorf("Websocket 协议升级异常. err:%s", err)
 
 		if conn == nil {
 			return
@@ -30,7 +31,7 @@ func ServeWs(context *gin.Context) {
 
 		cErr := conn.Close()
 		if cErr != nil {
-			log.Println("关闭协议异常", cErr)
+			logrus.Errorf("关闭协议异常. err:%s", cErr)
 		}
 
 		return
@@ -64,7 +65,11 @@ func ServeWs(context *gin.Context) {
 	client.Hub = WsManager
 	client.conn = conn
 	client.send = make(chan []byte, 1024)
+	client.Log = logrus.WithFields(map[string]interface{}{
+		"rid": guid,
+	})
 
+	// 注册客户端
 	client.Hub.Register <- client
 
 	go client.write()

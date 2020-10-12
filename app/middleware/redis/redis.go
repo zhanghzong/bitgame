@@ -3,10 +3,10 @@ package redis
 import (
 	"encoding/json"
 	v7 "github.com/go-redis/redis/v7"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/redisConst"
 	"github.com/zhanghuizong/bitgame/app/interfaces"
-	"github.com/zhanghuizong/bitgame/app/logs"
 	"github.com/zhanghuizong/bitgame/app/structs"
 )
 
@@ -40,11 +40,11 @@ func init() {
 
 	_, err := Redis.Ping().Result()
 	if err != nil {
-		logs.Log.Fatalf("Redis 连接异常, err:%s, addr:%s", err, addr)
+		logrus.Fatalf("Redis 连接异常, err:%s, addr:%s", err, addr)
 		return
 	}
 
-	logs.Log.Info("Redis 连接成功. addr:%s", addr)
+	logrus.Info("Redis 连接成功. addr:%s", addr)
 }
 
 // 消息订阅
@@ -52,14 +52,14 @@ func Subscribe(clientManger interfaces.ClientManagerInterface) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			logs.Log.Errorf("Redis 消息订阅异常. err:%s", err)
+			logrus.Errorf("Redis 消息订阅异常. err:%s", err)
 		}
 	}()
 
 	pubSub := Redis.Subscribe(redisConst.ChannelName)
 	msg, err := pubSub.Receive()
 	if err != nil {
-		logs.Log.Errorf("Redis 消息订阅异常. err:%s, msg:%s", err, msg)
+		logrus.Errorf("Redis 消息订阅异常. err:%s, msg:%s", err, msg)
 		return
 	}
 
@@ -70,12 +70,12 @@ func Subscribe(clientManger interfaces.ClientManagerInterface) {
 
 	// 处理消息
 	for msg := range ch {
-		logs.Log.Infof("Redis 订阅通道接收数据. msg:%s", msg)
+		logrus.Infof("Redis 订阅通道接收数据. msg:%s", msg)
 
 		channelMsg := new(structs.RedisChannel)
 		err := json.Unmarshal([]byte(msg.Payload), channelMsg)
 		if err != nil {
-			logs.Log.Errorf("Redis 订阅消息解析异常. err:%s", err)
+			logrus.Errorf("Redis 订阅消息解析异常. err:%s", err)
 			continue
 		}
 
@@ -90,6 +90,6 @@ func Publish(message interface{}) {
 	cmd := Redis.Publish(redisConst.ChannelName, res)
 	_, err := cmd.Result()
 	if err != nil {
-		logs.Log.Errorf("Redis publish 异常. err:%s", err)
+		logrus.Errorf("Redis publish 异常. err:%s", err)
 	}
 }

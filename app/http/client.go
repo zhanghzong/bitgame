@@ -78,7 +78,7 @@ func (c *Client) read() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Println("接受消息异常：", err, string(debug.Stack()))
+			c.Log.Warnf("接受消息异常. err:%s, stack:%s", err, string(debug.Stack()))
 		}
 	}()
 
@@ -88,7 +88,7 @@ func (c *Client) read() {
 
 	pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	if pongWaitErr != nil {
-		log.Println("设置 SetReadDeadline 异常", pongWaitErr)
+		c.Log.Warnf("设置 SetReadDeadline 异常. err:", pongWaitErr)
 		return
 	}
 
@@ -110,7 +110,7 @@ func (c *Client) read() {
 			return nil
 		}
 
-		log.Println("............设置 websocket 离线处理....................", code, text, c.Uid, c.SocketId)
+		c.Log.Infof("客户端离线, 错误码：%s, 错误：%s", code, text)
 
 		// offline
 		value, ok := getHandlers("offline")
@@ -144,7 +144,7 @@ func (c *Client) write() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Println("发送消息异常", err, string(debug.Stack()))
+			c.Log.Warnf("发送消息异常, err:%s, stack:%s", err, string(debug.Stack()))
 		}
 	}()
 
@@ -171,7 +171,7 @@ func (c *Client) write() {
 
 			_, wErr := w.Write(message)
 			if wErr != nil {
-				log.Println("websocket 发送消息异常", wErr, message)
+				c.Log.Warnf("websocket 发送消息异常. err:%s, msg:%s", wErr, message)
 			}
 
 			if err := w.Close(); err != nil {
@@ -191,11 +191,11 @@ func (c *Client) write() {
 func (c *Client) sendMsg(data interface{}) {
 	jsonByte, err := json.Marshal(data)
 	if err != nil {
-		log.Fatalln("sendMsg, JSON 编码异常", err, string(debug.Stack()))
+		c.Log.Warnf("sendMsg, JSON 编码异常. err:%s, stack:%s", err, string(debug.Stack()))
 		return
 	}
 
-	log.Println("消息推送", c.Uid, string(jsonByte))
+	c.Log.Infof("消息推送:%s", jsonByte)
 
 	// 启用加密传输
 	if utils.IsAuth() {
