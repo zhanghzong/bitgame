@@ -11,7 +11,6 @@ var Log *logrus.Logger
 
 func init() {
 	Log = logrus.New()
-	Log.SetReportCaller(true)
 	Log.SetFormatter(getTextFormatter())
 
 	name := getFileName()

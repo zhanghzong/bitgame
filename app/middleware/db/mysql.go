@@ -6,7 +6,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/envConst"
-	"log"
+	"github.com/zhanghuizong/bitgame/app/logs"
 )
 
 var (
@@ -22,12 +22,11 @@ func init() {
 	port := viper.GetString("mysql.port")
 	charset := viper.GetString("mysql.charset")
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local", user, passwd, host, port, database, charset)
-	log.Println("MySql 初始化：", dsn)
 
 	var err error
 	Db, err = gorm.Open("mysql", dsn)
 	if err != nil {
-		log.Println("MySQL 连接异常：", err)
+		logs.Log.WithFields(map[string]interface{}{"err": err}).Info("MySQL 连接异常")
 	}
 
 	// 打印 SQL 语句
@@ -35,4 +34,6 @@ func init() {
 	if env != envConst.Prod {
 		Db.LogMode(true)
 	}
+
+	logs.Log.WithFields(map[string]interface{}{"dsn": dsn}).Info("MySQL 连接成功...")
 }

@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/redisConst"
 	"github.com/zhanghuizong/bitgame/app/interfaces"
+	"github.com/zhanghuizong/bitgame/app/logs"
 	"github.com/zhanghuizong/bitgame/app/structs"
-	"log"
 )
 
 var (
@@ -30,7 +30,6 @@ func init() {
 		dbIndex = 1
 	}
 
-	log.Println("Redis 初始化：", addr, dbIndex)
 	Redis = v7.NewClient(&v7.Options{
 		Addr:         addr,
 		Password:     password,
@@ -41,8 +40,10 @@ func init() {
 
 	_, err := Redis.Ping().Result()
 	if err != nil {
-		log.Println("Redis 连接异常：", err)
+		logs.Log.WithFields(map[string]interface{}{"err": err, "addr": addr}).Error("Redis 连接异常")
 	}
+
+	logs.Log.WithFields(map[string]interface{}{"addr": addr, "dbIndex": dbIndex}).Info("Redis 连接成功")
 }
 
 // 消息订阅
@@ -50,31 +51,32 @@ func Subscribe(clientManger interfaces.ClientManagerInterface) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Println("Redis 消息订阅异常", err)
+			logs.Log.WithFields(map[string]interface{}{"err": err}).Error("Redis 消息订阅异常")
 		}
 	}()
 
 	pubSub := Redis.Subscribe(redisConst.ChannelName)
 	msg, err := pubSub.Receive()
 	if err != nil {
-		log.Println("redis 订阅失败", err, msg)
+		logs.Log.WithFields(map[string]interface{}{"err": err, "msg": msg}).Error("Redis 消息订阅异常")
 		return
 	}
 
 	defer pubSub.Close()
 
-	log.Println("redis 订阅通道 ", msg)
+	logs.Log.WithFields(map[string]interface{}{"msg": msg}).Info("Redis 订阅通道")
 
 	// 用管道来接收消息
 	ch := pubSub.Channel()
 
 	// 处理消息
 	for msg := range ch {
-		log.Println("Redis 消息订阅", msg.String())
+		logs.Log.WithFields(map[string]interface{}{"msg": msg.String()}).Info("Redis 订阅通道接收数据")
+
 		channelMsg := new(structs.RedisChannel)
 		err := json.Unmarshal([]byte(msg.Payload), channelMsg)
 		if err != nil {
-			log.Println("解析 Redis channel 消息异常", err)
+			logs.Log.WithFields(map[string]interface{}{"err": err}).Error("Redis 订阅消息解析异常")
 			continue
 		}
 
@@ -89,6 +91,6 @@ func Publish(message interface{}) {
 	cmd := Redis.Publish(redisConst.ChannelName, res)
 	_, err := cmd.Result()
 	if err != nil {
-		log.Println("Redis publish 异常", err)
+		logs.Log.WithFields(map[string]interface{}{"err": err}).Error("Redis publish 异常")
 	}
 }

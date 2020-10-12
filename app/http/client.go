@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/app/models/login"
 	"github.com/zhanghuizong/bitgame/app/structs"
 	"github.com/zhanghuizong/bitgame/utils"
@@ -44,8 +45,8 @@ type Client struct {
 	// 用户ID
 	Uid string
 
-	// CommonKey 加密认证 key
-	CommonKey string
+	// commonKey 加密认证 key
+	commonKey string
 
 	// 协议默认参数
 	ParamJwt structs.ParamJwt
@@ -58,6 +59,9 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	// 日志
+	Log *logrus.Entry
 }
 
 func closeClient(c *Client) {
@@ -195,7 +199,7 @@ func (c *Client) sendMsg(data interface{}) {
 
 	// 启用加密传输
 	if utils.IsAuth() {
-		encodeRes := aes.Encode(jsonByte, []byte(c.CommonKey))
+		encodeRes := aes.Encode(jsonByte, []byte(c.commonKey))
 		jsonByte = []byte("0" + base64.StdEncoding.EncodeToString(encodeRes))
 	}
 

@@ -60,7 +60,7 @@ func ServeWs(context *gin.Context) {
 	// 实例化客户端连接对象
 	client := &Client{}
 	client.SocketId = guid
-	client.CommonKey = commonKey
+	client.commonKey = commonKey
 	client.Hub = WsManager
 	client.conn = conn
 	client.send = make(chan []byte, 1024)

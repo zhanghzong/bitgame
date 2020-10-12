@@ -2,8 +2,10 @@ package http
 
 import (
 	"encoding/json"
+	"github.com/rs/xid"
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
+	"github.com/zhanghuizong/bitgame/app/logs"
 	"github.com/zhanghuizong/bitgame/app/models/login"
 	"github.com/zhanghuizong/bitgame/app/structs"
 	"github.com/zhanghuizong/bitgame/utils"
@@ -13,14 +15,14 @@ import (
 )
 
 func parseMsg(c *Client, message []byte) {
-	if utils.IsAuth() && c.CommonKey == "" {
+	if utils.IsAuth() && c.commonKey == "" {
 		closeClient(c)
 		log.Println("客户未进行认证, common-key 为空")
 		return
 	}
 
 	// 解析消息体
-	requestMsg := utils.GetRequestMsg(message, c.CommonKey)
+	requestMsg := utils.GetRequestMsg(message, c.commonKey)
 	if requestMsg == nil {
 		c.insidePushError(errConst.BadCmd)
 		return
@@ -90,6 +92,13 @@ func parseMsg(c *Client, message []byte) {
 		c.insidePushError(errConst.NoCmd)
 		return
 	}
+
+	// 请求ID
+	requestId := xid.New().String()
+	c.Log = logs.Log.WithFields(map[string]interface{}{
+		"rid": requestId,
+		"uid": c.Uid,
+	})
 
 	value(c, requestMsg)
 }
