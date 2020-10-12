@@ -1,9 +1,17 @@
 package structs
 
+import "encoding/json"
+
 // 接受消息结构体
 type RequestMsg struct {
 	Cmd    string                 `json:"cmd"`
 	Params map[string]interface{} `json:"params"`
+}
+
+func (t RequestMsg) String() string {
+	s, _ := json.Marshal(t)
+
+	return string(s)
 }
 
 //{

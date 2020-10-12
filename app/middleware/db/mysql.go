@@ -26,7 +26,8 @@ func init() {
 	var err error
 	Db, err = gorm.Open("mysql", dsn)
 	if err != nil {
-		logs.Log.WithFields(map[string]interface{}{"err": err}).Info("MySQL 连接异常")
+		logs.Log.Fatalf("MySQL 连接异常,err:%s", err)
+		return
 	}
 
 	// 打印 SQL 语句
@@ -35,5 +36,5 @@ func init() {
 		Db.LogMode(true)
 	}
 
-	logs.Log.WithFields(map[string]interface{}{"dsn": dsn}).Info("MySQL 连接成功...")
+	logs.Log.Infof("MySQL 连接成功. dsn:%s", dsn)
 }

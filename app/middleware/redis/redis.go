@@ -40,10 +40,11 @@ func init() {
 
 	_, err := Redis.Ping().Result()
 	if err != nil {
-		logs.Log.WithFields(map[string]interface{}{"err": err, "addr": addr}).Error("Redis 连接异常")
+		logs.Log.Fatalf("Redis 连接异常, err:%s, addr:%s", err, addr)
+		return
 	}
 
-	logs.Log.WithFields(map[string]interface{}{"addr": addr, "dbIndex": dbIndex}).Info("Redis 连接成功")
+	logs.Log.Info("Redis 连接成功. addr:%s", addr)
 }
 
 // 消息订阅
@@ -51,32 +52,30 @@ func Subscribe(clientManger interfaces.ClientManagerInterface) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			logs.Log.WithFields(map[string]interface{}{"err": err}).Error("Redis 消息订阅异常")
+			logs.Log.Errorf("Redis 消息订阅异常. err:%s", err)
 		}
 	}()
 
 	pubSub := Redis.Subscribe(redisConst.ChannelName)
 	msg, err := pubSub.Receive()
 	if err != nil {
-		logs.Log.WithFields(map[string]interface{}{"err": err, "msg": msg}).Error("Redis 消息订阅异常")
+		logs.Log.Errorf("Redis 消息订阅异常. err:%s, msg:%s", err, msg)
 		return
 	}
 
 	defer pubSub.Close()
-
-	logs.Log.WithFields(map[string]interface{}{"msg": msg}).Info("Redis 订阅通道")
 
 	// 用管道来接收消息
 	ch := pubSub.Channel()
 
 	// 处理消息
 	for msg := range ch {
-		logs.Log.WithFields(map[string]interface{}{"msg": msg.String()}).Info("Redis 订阅通道接收数据")
+		logs.Log.Infof("Redis 订阅通道接收数据. msg:%s", msg)
 
 		channelMsg := new(structs.RedisChannel)
 		err := json.Unmarshal([]byte(msg.Payload), channelMsg)
 		if err != nil {
-			logs.Log.WithFields(map[string]interface{}{"err": err}).Error("Redis 订阅消息解析异常")
+			logs.Log.Errorf("Redis 订阅消息解析异常. err:%s", err)
 			continue
 		}
 
@@ -91,6 +90,6 @@ func Publish(message interface{}) {
 	cmd := Redis.Publish(redisConst.ChannelName, res)
 	_, err := cmd.Result()
 	if err != nil {
-		logs.Log.WithFields(map[string]interface{}{"err": err}).Error("Redis publish 异常")
+		logs.Log.Errorf("Redis publish 异常. err:%s", err)
 	}
 }
