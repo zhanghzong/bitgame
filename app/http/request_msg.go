@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/rs/xid"
 	"github.com/spf13/viper"
+	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/models/login"
 	"github.com/zhanghuizong/bitgame/app/structs"
@@ -13,7 +14,18 @@ import (
 )
 
 func parseMsg(c *Client, message []byte) {
-	if utils.IsAuth() && c.commonKey == "" {
+	isAuth := utils.IsAuth()
+
+	// (预发|生产)禁止使用未加密数据传输
+	if !isAuth {
+		env := viper.GetString("app.env")
+		if env == envConst.Pre || env == envConst.Prod {
+			c.insidePushError(errConst.BadJwtToken)
+			return
+		}
+	}
+
+	if isAuth && c.commonKey == "" {
 		closeClient(c)
 		c.Log.Warnf("客户未进行认证, common-key 为空")
 		return
@@ -36,14 +48,33 @@ func parseMsg(c *Client, message []byte) {
 	// 首次解密 JWT
 	params := requestMsg.Params
 	if c.ParamJwt.Data.Uid == "" {
-		jwtRes := jwt.Decode(params["jwt"].(string), viper.GetString("jwt.key"))
-		jwtStr, jwtErr := json.Marshal(jwtRes)
-		if jwtErr != nil {
-			c.insidePushError(errConst.BadJwtToken)
-			return
+		var jwtStr []byte
+		jwtData := structs.ParamJwt{}
+
+		// 解密 JWT
+		if isAuth {
+			var jwtErr error
+			jwtRes := jwt.Decode(params["jwt"].(string), viper.GetString("jwt.key"))
+			jwtStr, jwtErr = json.Marshal(jwtRes)
+			if jwtErr != nil {
+				c.insidePushError(errConst.BadJwtToken)
+				return
+			}
+		} else {
+			requestJwt, ok := params["jwt"].(map[string]interface{})
+
+			// 不存在 jwt 参数
+			if !ok {
+				uid, uidOk := params["uid"].(string)
+				if uidOk {
+					jwtData.Data.Uid = uid
+					jwtData.Data.UserId = int(time.Now().Unix())
+					jwtData.Data.ShowName = "test.test"
+				}
+			}
+			jwtStr, _ = json.Marshal(requestJwt)
 		}
 
-		jwtData := structs.ParamJwt{}
 		jsonErr := json.Unmarshal(jwtStr, &jwtData)
 		if jsonErr != nil {
 			c.insidePushError(errConst.BadJwtToken)
@@ -77,7 +108,6 @@ func parseMsg(c *Client, message []byte) {
 	// 删除 必要 消息体字段
 	delete(requestMsg.Params, "jwt")
 	delete(requestMsg.Params, "userId")
-	delete(requestMsg.Params, "_userInfo")
 
 	msgJson, _ := json.Marshal(map[string]interface{}{
 		"message": requestMsg,
