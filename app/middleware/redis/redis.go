@@ -2,7 +2,7 @@ package redis
 
 import (
 	"encoding/json"
-	v7 "github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v7"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/redisConst"
@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	Redis *v7.Client
+	Redis *redis.Client
 )
 
 // Redis 非关系型数据初始化
@@ -30,7 +30,7 @@ func init() {
 		dbIndex = 1
 	}
 
-	Redis = v7.NewClient(&v7.Options{
+	Redis = redis.NewClient(&redis.Options{
 		Addr:         addr,
 		Password:     password,
 		DB:           dbIndex,
