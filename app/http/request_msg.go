@@ -69,7 +69,7 @@ func parseMsg(c *Client, message []byte) {
 				if uidOk {
 					jwtData.Data.Uid = uid
 					jwtData.Data.UserId = int(time.Now().Unix())
-					jwtData.Data.ShowName = "test.test"
+					jwtData.Data.ShowName = uid
 				}
 			}
 			jwtStr, _ = json.Marshal(requestJwt)
