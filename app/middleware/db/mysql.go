@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/envConst"
+	"log"
 )
 
 var (
@@ -26,6 +27,7 @@ func init() {
 	var err error
 	Db, err = gorm.Open("mysql", dsn)
 	if err != nil {
+		log.Printf("MySQL 连接异常,err:%s", err)
 		logrus.Fatalf("MySQL 连接异常,err:%s", err)
 		return
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/zhanghuizong/bitgame/app/constants/redisConst"
 	"github.com/zhanghuizong/bitgame/app/interfaces"
 	"github.com/zhanghuizong/bitgame/app/structs"
+	"log"
 )
 
 var (
@@ -40,6 +41,7 @@ func init() {
 
 	_, err := Redis.Ping().Result()
 	if err != nil {
+		log.Printf("Redis 连接异常, err:%s, addr:%s", err, addr)
 		logrus.Fatalf("Redis 连接异常, err:%s, addr:%s", err, addr)
 		return
 	}
