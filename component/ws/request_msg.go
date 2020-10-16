@@ -1,13 +1,13 @@
-package http
+package ws
 
 import (
 	"encoding/json"
 	"github.com/rs/xid"
-	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
-	"github.com/zhanghuizong/bitgame/app/models/login"
-	"github.com/zhanghuizong/bitgame/app/structs"
+	"github.com/zhanghuizong/bitgame/app/definition"
+	"github.com/zhanghuizong/bitgame/app/models"
+	"github.com/zhanghuizong/bitgame/service/config"
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/jwt"
 	"time"
@@ -18,7 +18,7 @@ func parseMsg(c *Client, message []byte) {
 
 	// (预发|生产)禁止使用未加密数据传输
 	if !isAuth {
-		env := viper.GetString("app.env")
+		env := config.GetAppEnv()
 		if env == envConst.Pre || env == envConst.Prod {
 			c.insidePushError(errConst.BadJwtToken)
 			return
@@ -49,12 +49,12 @@ func parseMsg(c *Client, message []byte) {
 	params := requestMsg.Params
 	if c.ParamJwt.Data.Uid == "" {
 		var jwtStr []byte
-		jwtData := structs.ParamJwt{}
+		jwtData := definition.ParamJwt{}
 
 		// 解密 JWT
 		if isAuth {
 			var jwtErr error
-			jwtRes := jwt.Decode(params["jwt"].(string), viper.GetString("jwt.key"))
+			jwtRes := jwt.Decode(params["jwt"].(string), config.GetJwtKey())
 			jwtStr, jwtErr = json.Marshal(jwtRes)
 			if jwtErr != nil {
 				c.insidePushError(errConst.BadJwtToken)
@@ -136,7 +136,7 @@ func parseMsg(c *Client, message []byte) {
 func singleLogin(c *Client) {
 	uid := c.Uid
 
-	model := new(login.Model)
+	model := new(models.LoginModel)
 	oldSocketId := model.GetSocketId(uid)
 
 	if oldSocketId != "" {

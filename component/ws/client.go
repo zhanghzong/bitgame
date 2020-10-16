@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package http
+package ws
 
 import (
 	"bytes"
@@ -10,8 +10,8 @@ import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
-	"github.com/zhanghuizong/bitgame/app/models/login"
-	"github.com/zhanghuizong/bitgame/app/structs"
+	"github.com/zhanghuizong/bitgame/app/definition"
+	"github.com/zhanghuizong/bitgame/app/models"
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/aes"
 	"log"
@@ -49,7 +49,7 @@ type Client struct {
 	commonKey string
 
 	// 协议默认参数
-	ParamJwt structs.ParamJwt
+	ParamJwt definition.ParamJwt
 
 	// 管理
 	Hub *ClientManager
@@ -103,7 +103,7 @@ func (c *Client) read() {
 
 	// 设置 websocket 离线处理
 	c.conn.SetCloseHandler(func(code int, text string) error {
-		model := new(login.Model)
+		model := new(models.LoginModel)
 		uid := c.Uid
 		connSocketId := model.GetSocketId(uid)
 		if connSocketId != c.SocketId {
@@ -216,7 +216,7 @@ func (c *Client) Success(cmd string, data interface{}) {
 
 // 统一消息推送格式
 // 错误消息单播
-func (c *Client) Error(cmd string, row structs.ErrMsgStruct) {
+func (c *Client) Error(cmd string, row definition.ErrMsgStruct) {
 	res := pushError(cmd, row)
 
 	c.sendMsg(res)

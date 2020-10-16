@@ -1,8 +1,8 @@
-package http
+package ws
 
 import (
-	"github.com/zhanghuizong/bitgame/app/middleware/redis"
-	"github.com/zhanghuizong/bitgame/app/structs"
+	"github.com/zhanghuizong/bitgame/app/definition"
+	"github.com/zhanghuizong/bitgame/component/redis"
 	"os"
 )
 
@@ -11,7 +11,7 @@ func single(uid string, cmd string, data interface{}) {
 	client := WsManager.GetClientByUserId(uid)
 	if client == nil {
 		hostname, _ := os.Hostname()
-		channelMsg := new(structs.RedisChannel)
+		channelMsg := new(definition.RedisChannel)
 		channelMsg.Type = "response"
 		channelMsg.Hostname = hostname
 		channelMsg.Users = []string{uid}
@@ -39,7 +39,7 @@ func pushSuccess(cmd string, data interface{}) map[string]interface{} {
 	}
 }
 
-func pushError(cmd string, row structs.ErrMsgStruct) map[string]interface{} {
+func pushError(cmd string, row definition.ErrMsgStruct) map[string]interface{} {
 	return map[string]interface{}{
 		"cmd":  "error",
 		"code": 200,

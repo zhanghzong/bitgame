@@ -1,4 +1,4 @@
-package http
+package ws
 
 var WsManager *ClientManager
 

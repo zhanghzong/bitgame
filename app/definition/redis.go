@@ -1,4 +1,4 @@
-package structs
+package definition
 
 // Redis channel communication struct defined
 type RedisChannel struct {

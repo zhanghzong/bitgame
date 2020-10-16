@@ -13,4 +13,5 @@ require (
 	github.com/wenzhenxi/gorsa v0.0.0-20191231021121-58a13482fb09 // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/antonfisher/nested-logrus-formatter v1.3.0
+	github.com/zouyx/agollo/v4 v4.0.0-rc1
 )

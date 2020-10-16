@@ -1,9 +1,9 @@
-package java
+package javaApi
 
 import (
 	"encoding/json"
-	"github.com/spf13/viper"
 	"github.com/wenzhenxi/gorsa"
+	"github.com/zhanghuizong/bitgame/service/config"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,7 +13,7 @@ import (
 
 // rsa加密
 func encode(originData string) string {
-	publicKey := viper.GetString("java.rsa.public")
+	publicKey := config.GetJavaRsaPublic()
 	res, err := gorsa.PublicEncrypt(originData, publicKey)
 	if err != nil {
 		return ""
@@ -23,7 +23,7 @@ func encode(originData string) string {
 }
 
 func post(api string, data map[string]interface{}) (string, error) {
-	host := viper.GetString("java.serverApi")
+	host := config.GetJavaServerApi()
 	url := host + api
 
 	client := &http.Client{}
@@ -52,7 +52,7 @@ func post(api string, data map[string]interface{}) (string, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("apiKey", viper.GetString("java.apiKey"))
+	req.Header.Set("apiKey", config.GetJavaApiKey())
 
 	resp, clientErr := client.Do(req)
 	if clientErr != nil {

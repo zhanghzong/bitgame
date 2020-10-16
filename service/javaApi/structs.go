@@ -1,4 +1,4 @@
-package java
+package javaApi
 
 // 查询货币配置列表
 type GetCurrencyListStruct struct {

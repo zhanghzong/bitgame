@@ -1,11 +1,11 @@
-package http
+package ws
 
 import (
-	"github.com/zhanghuizong/bitgame/app/structs"
+	"github.com/zhanghuizong/bitgame/app/definition"
 	"sync"
 )
 
-type functions func(client *Client, message *structs.RequestMsg)
+type functions func(client *Client, message *definition.RequestMsg)
 
 var (
 	handlers        = make(map[string]functions)

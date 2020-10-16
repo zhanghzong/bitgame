@@ -1,15 +1,15 @@
-package login
+package models
 
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/app/constants/redisConst"
-	"github.com/zhanghuizong/bitgame/app/middleware/redis"
+	"github.com/zhanghuizong/bitgame/component/redis"
 )
 
-type Model struct {
+type LoginModel struct {
 }
 
-func (t Model) AddSocketId(uid string, socketId string) {
+func (t LoginModel) AddSocketId(uid string, socketId string) {
 	key := redisConst.SingleLogin
 
 	cmd := redis.Redis.HSet(key, uid, socketId)
@@ -19,12 +19,12 @@ func (t Model) AddSocketId(uid string, socketId string) {
 	}
 }
 
-func (t Model) GetSocketId(uid string) string {
+func (t LoginModel) GetSocketId(uid string) string {
 	key := redisConst.SingleLogin
 	return redis.Redis.HGet(key, uid).Val()
 }
 
-func (t Model) DelSocketId(uid string) int {
+func (t LoginModel) DelSocketId(uid string) int {
 	key := redisConst.SingleLogin
 	val := redis.Redis.HDel(key, uid).Val()
 

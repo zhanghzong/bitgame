@@ -1,8 +1,8 @@
-package java
+package javaApi
 
 import (
 	"encoding/json"
-	"github.com/spf13/viper"
+	"github.com/zhanghuizong/bitgame/service/config"
 	"time"
 )
 
@@ -18,8 +18,8 @@ func DeductUserAccount(openId string, outOrderNo string, amount float32, currenc
 	url := "/game/acct/deduct"
 
 	data := map[string]interface{}{
-		"gameNo":      viper.GetString("java.gameId"),
-		"channelId":   viper.GetString("java.channelId"),
+		"gameNo":      config.GetJavaGameId(),
+		"channelId":   config.GetJavaChannelId(),
 		"requestTime": time.Now().Unix(),
 		"openId":      openId,
 		"currency":    currency,
@@ -44,8 +44,8 @@ func DeductUserAccountNew(openId string, outOrderNo string, amount float32, curr
 	url := "/game/acct/convert"
 
 	data := map[string]interface{}{
-		"gameNo":       viper.GetString("java.gameId"),
-		"channelId":    viper.GetString("java.channelId"),
+		"gameNo":       config.GetJavaGameId(),
+		"channelId":    config.GetJavaChannelId(),
 		"requestTime":  time.Now().Unix(),
 		"openId":       openId,
 		"currency":     currency,
@@ -63,9 +63,9 @@ func GetCurrencyList() (*GetCurrencyListStruct, error) {
 	url := "/game/currency/getCurrencyList"
 
 	data := map[string]interface{}{
-		"gameNo":      viper.GetString("java.gameId"),
-		"channelId":   viper.GetString("java.channelId"),
-		"domainKey":   viper.GetString("java.domainKey"),
+		"gameNo":      config.GetJavaGameId(),
+		"channelId":   config.GetJavaChannelId(),
+		"domainKey":   config.GetJavaDomainKey(),
 		"requestTime": time.Now().Unix(),
 	}
 
@@ -85,7 +85,7 @@ func GetBalanceList(openId string) (*GetBalanceListStruct, error) {
 	url := "/game/acct/getBalanceList"
 
 	data := map[string]interface{}{
-		"gameNo":      viper.GetString("java.gameId"),
+		"gameNo":      config.GetJavaGameId(),
 		"requestTime": time.Now().Unix(),
 		"openId":      openId,
 	}

@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"github.com/go-redis/redis/v7"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/app/constants/redisConst"
-	"github.com/zhanghuizong/bitgame/app/interfaces"
-	"github.com/zhanghuizong/bitgame/app/structs"
+	"github.com/zhanghuizong/bitgame/app/definition"
+	"github.com/zhanghuizong/bitgame/service/config"
 	"log"
 )
 
@@ -17,11 +16,11 @@ var (
 
 // Redis 非关系型数据初始化
 func init() {
-	addr := viper.GetString("redis.addr")
-	password := viper.GetString("redis.password")
-	dbIndex := viper.GetInt("redis.db")
-	poolSize := viper.GetInt("redis.poolSize")
-	minIdleConns := viper.GetInt("redis.minIdleConns")
+	addr := config.GetRedisAddr()
+	password := config.GetRedisPassword()
+	dbIndex := config.GetRedisDb()
+	poolSize := config.GetRedisPoolSize()
+	minIdleConns := config.GetRedisMinIdleConns()
 
 	if addr == "" {
 		addr = "localhost:6379"
@@ -50,7 +49,7 @@ func init() {
 }
 
 // 消息订阅
-func Subscribe(clientManger interfaces.ClientManagerInterface) {
+func Subscribe(clientManger definition.ClientManagerInterface) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -74,7 +73,7 @@ func Subscribe(clientManger interfaces.ClientManagerInterface) {
 	for msg := range ch {
 		logrus.Infof("Redis 订阅通道接收数据. msg:%s", msg)
 
-		channelMsg := new(structs.RedisChannel)
+		channelMsg := new(definition.RedisChannel)
 		err := json.Unmarshal([]byte(msg.Payload), channelMsg)
 		if err != nil {
 			logrus.Errorf("Redis 订阅消息解析异常. err:%s", err)

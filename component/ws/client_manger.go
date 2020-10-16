@@ -1,6 +1,6 @@
-package http
+package ws
 
-import "github.com/zhanghuizong/bitgame/app/structs"
+import "github.com/zhanghuizong/bitgame/app/definition"
 
 type ClientManager struct {
 	// 客户端
@@ -58,7 +58,7 @@ func (h *ClientManager) GetClientBySocketId(socketId string) *Client {
 }
 
 // Redis channel 消息分发
-func (h *ClientManager) RedisDispatch(msg *structs.RedisChannel) {
+func (h *ClientManager) RedisDispatch(msg *definition.RedisChannel) {
 	users := msg.Users
 	for _, uid := range users {
 		client := h.GetClientByUserId(uid)
