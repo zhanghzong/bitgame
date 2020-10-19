@@ -21,7 +21,8 @@ func single(uid string, cmd string, data interface{}) {
 		return
 	}
 
-	client.Success(cmd, data)
+	res := pushSuccess(cmd, data)
+	client.sendMsg(res)
 }
 
 // 消息广播

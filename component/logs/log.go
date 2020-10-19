@@ -3,6 +3,8 @@ package logs
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"os"
 	"time"
 )
@@ -19,7 +21,12 @@ func init() {
 	}
 
 	// 设置日志级别
-	logrus.SetLevel(logrus.DebugLevel)
+	env := viper.GetString("app.env")
+	if env == envConst.Prod {
+		logrus.SetLevel(logrus.InfoLevel)
+	} else {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
 
 	// TODO Hooks
 }

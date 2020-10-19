@@ -59,9 +59,6 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
-
-	// 日志
-	Log *logrus.Entry
 }
 
 func closeClient(c *Client) {
@@ -69,7 +66,7 @@ func closeClient(c *Client) {
 		return
 	}
 
-	c.Hub.Unregister <- c
+	c.Hub.unregister <- c
 	c.conn.Close()
 }
 
@@ -78,7 +75,7 @@ func (c *Client) read() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			c.Log.Warnf("接受消息异常. err:%s, stack:%s", err, string(debug.Stack()))
+			logrus.Warnf("接受消息异常. err:%s, stack:%s", err, string(debug.Stack()))
 		}
 	}()
 
@@ -88,7 +85,7 @@ func (c *Client) read() {
 
 	pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	if pongWaitErr != nil {
-		c.Log.Warnf("设置 SetReadDeadline 异常. err:", pongWaitErr)
+		logrus.Warnf("设置 SetReadDeadline 异常. err:", pongWaitErr)
 		return
 	}
 
@@ -110,7 +107,7 @@ func (c *Client) read() {
 			return nil
 		}
 
-		c.Log.Infof("客户端离线, 错误码：%s, 错误：%s", code, text)
+		logrus.Infof("客户端离线, 错误码：%s, 错误：%s", code, text)
 
 		// offline
 		value, ok := getHandlers("offline")
@@ -144,7 +141,7 @@ func (c *Client) write() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			c.Log.Warnf("发送消息异常, err:%s, stack:%s", err, string(debug.Stack()))
+			logrus.Warnf("发送消息异常, err:%s, stack:%s", err, string(debug.Stack()))
 		}
 	}()
 
@@ -171,7 +168,7 @@ func (c *Client) write() {
 
 			_, wErr := w.Write(message)
 			if wErr != nil {
-				c.Log.Warnf("websocket 发送消息异常. err:%s, msg:%s", wErr, message)
+				logrus.Warnf("websocket 发送消息异常. err:%s, msg:%s", wErr, message)
 			}
 
 			if err := w.Close(); err != nil {
@@ -189,13 +186,25 @@ func (c *Client) write() {
 
 // 消息单播
 func (c *Client) sendMsg(data interface{}) {
-	jsonByte, err := json.Marshal(data)
-	if err != nil {
-		c.Log.Warnf("sendMsg, JSON 编码异常. err:%s, stack:%s", err, string(debug.Stack()))
+	defer func() {
+		err := recover()
+		if err != nil {
+			logrus.Errorf("发送消息异常. err:%s", err)
+		}
+	}()
+
+	if c == nil {
+		closeClient(c)
 		return
 	}
 
-	c.Log.Infof("消息推送:%s", jsonByte)
+	jsonByte, err := json.Marshal(data)
+	if err != nil {
+		logrus.Warnf("sendMsg, JSON 编码异常. err:%s, stack:%s", err, string(debug.Stack()))
+		return
+	}
+
+	logrus.Infof("消息推送:%s", jsonByte)
 
 	// 启用加密传输
 	if utils.IsAuth() {
@@ -209,17 +218,21 @@ func (c *Client) sendMsg(data interface{}) {
 // 统一消息推送格式
 // 正确消息单播
 func (c *Client) Success(cmd string, data interface{}) {
-	res := pushSuccess(cmd, data)
+	if c == nil {
+		return
+	}
 
-	c.sendMsg(res)
+	single(c.Uid, cmd, data)
 }
 
 // 统一消息推送格式
 // 错误消息单播
 func (c *Client) Error(cmd string, row definition.ErrMsgStruct) {
-	res := pushError(cmd, row)
+	if c == nil {
+		return
+	}
 
-	c.sendMsg(res)
+	single(c.Uid, cmd, pushError(cmd, row))
 }
 
 // 统一消息推送格式

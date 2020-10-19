@@ -7,7 +7,6 @@ import (
 	"github.com/zhanghuizong/bitgame/app/constants/redisConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"github.com/zhanghuizong/bitgame/service/config"
-	"log"
 )
 
 var (
@@ -40,12 +39,11 @@ func init() {
 
 	_, err := Redis.Ping().Result()
 	if err != nil {
-		log.Printf("Redis 连接异常, err:%s, addr:%s", err, addr)
 		logrus.Fatalf("Redis 连接异常, err:%s, addr:%s", err, addr)
 		return
 	}
 
-	logrus.Info("Redis 连接成功. addr:%s", addr)
+	logrus.Infof("Redis 连接成功. addr:%s", addr)
 }
 
 // 消息订阅

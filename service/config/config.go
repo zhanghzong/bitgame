@@ -2,15 +2,8 @@ package config
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/component/apollo"
 )
-
-// 获取端口号
-// app.port=8080
-func GetAppPort() string {
-	return viper.GetString("app.port")
-}
 
 // 获取环境变量
 // dev= 开发环境
@@ -158,36 +151,4 @@ func GetJavaDomainKey() string {
 //java.rsa.public=-----BEGIN PUBLIC KEY-----\n....\n-----END PUBLIC KEY-----
 func GetJavaRsaPublic() string {
 	return apollo.Config.GetValue("java.rsa.public")
-}
-
-/** 阿波罗 配置节点 **/
-
-// 阿波罗 meta server 地址
-// apollo.ip=http://172.16.0.81:8080
-func GetApolloIp() string {
-	return viper.GetString("apollo.ip")
-}
-
-// 阿波罗应用ID
-// apollo.appId=game-fishing
-func GetApolloAppId() string {
-	return viper.GetString("apollo.appId")
-}
-
-// 阿波罗集群名称
-// apollo.cluster=default
-func GetApolloCluster() string {
-	return viper.GetString("apollo.cluster")
-}
-
-// 阿波罗命名空间
-// apollo.namespaceName=application
-func GetApolloNamespaceName() string {
-	return viper.GetString("apollo.namespaceName")
-}
-
-// 阿波罗秘钥
-// apollo.namespaceName=application
-func GetApolloSecret() string {
-	return viper.GetString("apollo.secret")
 }

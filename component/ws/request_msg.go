@@ -2,7 +2,7 @@ package ws
 
 import (
 	"encoding/json"
-	"github.com/rs/xid"
+	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
@@ -27,7 +27,7 @@ func parseMsg(c *Client, message []byte) {
 
 	if isAuth && c.commonKey == "" {
 		closeClient(c)
-		c.Log.Warnf("客户未进行认证, common-key 为空")
+		logrus.Warnf("客户未进行认证, common-key 为空")
 		return
 	}
 
@@ -114,20 +114,13 @@ func parseMsg(c *Client, message []byte) {
 		"jwt":     c.ParamJwt,
 	})
 
-	c.Log.Infof("接收消息:%s", msgJson)
+	logrus.Infof("接收消息:%s", msgJson)
 
 	value, ok := getHandlers(cmd)
 	if ok == false {
 		c.insidePushError(errConst.NoCmd)
 		return
 	}
-
-	_, isOk := c.Log.Data["uid"]
-	if isOk {
-		c.Log.Data["rid"] = xid.New().String() // 请求ID
-	}
-
-	c.Log.Data["uid"] = c.Uid
 
 	value(c, requestMsg)
 }
@@ -153,7 +146,7 @@ func singleLogin(c *Client) {
 	model.AddSocketId(uid, c.SocketId)
 
 	// 绑定 uid与socketId
-	c.Hub.UserList[c.Uid] = c.SocketId
+	c.Hub.userList[c.Uid] = c.SocketId
 }
 
 func closeOtherClient(c *Client) {

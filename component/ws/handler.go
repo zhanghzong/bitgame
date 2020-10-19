@@ -8,14 +8,14 @@ import (
 type functions func(client *Client, message *definition.RequestMsg)
 
 var (
-	handlers        = make(map[string]functions)
-	handlersRWMutex sync.RWMutex
+	handlers = make(map[string]functions)
+	rwLock   sync.RWMutex
 )
 
 // 注册
 func Register(key string, value functions) {
-	handlersRWMutex.Lock()
-	defer handlersRWMutex.Unlock()
+	rwLock.Lock()
+	defer rwLock.Unlock()
 	handlers[key] = value
 
 	return
@@ -23,8 +23,8 @@ func Register(key string, value functions) {
 
 // 获取
 func getHandlers(key string) (value functions, ok bool) {
-	handlersRWMutex.RLock()
-	defer handlersRWMutex.RUnlock()
+	rwLock.RLock()
+	defer rwLock.RUnlock()
 
 	value, ok = handlers[key]
 
