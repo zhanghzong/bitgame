@@ -59,6 +59,8 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	*logrus.Entry
 }
 
 func closeClient(c *Client) {

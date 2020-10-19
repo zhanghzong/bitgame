@@ -65,6 +65,7 @@ func ServeWs(context *gin.Context) {
 	client.Hub = WsManager
 	client.conn = conn
 	client.send = make(chan []byte, 1024)
+	client.Entry = logrus.WithFields(map[string]interface{}{"rid": guid})
 
 	// 注册客户端
 	client.Hub.register <- client

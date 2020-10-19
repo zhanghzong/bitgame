@@ -6,23 +6,25 @@
 
 - websocket
     - 路由分发
+        - websocket hook (online|offline)
     - 异地登录
     - 通讯协议加解密
 - MySQL
 - Redis
-- websocket hook (online|offline)
 - 配置文件
 
 # 配置文件
 
-> 注意：文件名称必须为 `app.yaml`
+> 注意：文件名称必须为 `config.properties`
 
-1. 应用配置文件
-    > 跟随项目打包后，配置文件将无法动态调整
+- 应用配置文件
+> 支持热更新
 
-2. 外部注入
-    > 可动态调整项目配置文件
-    > 只需将 `app.yaml` 文件放置在与应用程序同目录
+-  阿波罗
+> 支持热更新
+
+> `注意：如果以上两种配置文件都存在，将优先采用应用配置文件`
+
 
 # 运行模式
 

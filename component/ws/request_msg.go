@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"github.com/rs/xid"
 	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
@@ -121,6 +122,13 @@ func parseMsg(c *Client, message []byte) {
 		c.insidePushError(errConst.NoCmd)
 		return
 	}
+
+	_, isOk := c.Data["uid"]
+	if isOk {
+		c.Data["rid"] = xid.New().String()
+	}
+
+	c.Data["uid"] = c.Uid
 
 	value(c, requestMsg)
 }

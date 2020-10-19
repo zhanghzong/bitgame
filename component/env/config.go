@@ -1,6 +1,7 @@
 package env
 
 import (
+	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"log"
@@ -12,6 +13,7 @@ import (
 func init() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
+	viper.WatchConfig()
 	err := viper.ReadInConfig()
 	if err != nil {
 		logrus.Infof("配置文件加载异常：", err, string(debug.Stack()))
@@ -19,4 +21,8 @@ func init() {
 	}
 
 	log.Println("应用配置文件加载成功")
+
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		logrus.Infof("Config file changed:%s", e.Name)
+	})
 }
