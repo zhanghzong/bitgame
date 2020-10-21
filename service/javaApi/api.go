@@ -10,11 +10,11 @@ import (
  * 用户账户扣减
  * @param openId string, 用户唯一标识
  * @param outOrderNo  string, 游戏订单编号
- * @param amount float32,订单金额
  * @param currency  string，币种信息
+ * @param amount float32,订单金额
  * @return orderNo 返回平台订单
  */
-func DeductUserAccount(openId string, outOrderNo string, amount float32, currency string) (string, error) {
+func DeductUserAccount(openId string, currency string, outOrderNo string, amount float64) (*DeductUserAccountStruct, error) {
 	url := "/game/acct/deduct"
 
 	data := map[string]interface{}{
@@ -27,35 +27,15 @@ func DeductUserAccount(openId string, outOrderNo string, amount float32, currenc
 		"amount":      amount,
 	}
 
-	return post(url, data)
-}
-
-/**
- * 用户账户兑换（游戏充值）
- * @param {string}  openId       用户id
- * @param {string}  outOrderNo   游戏订单编号
- * @param {number}  orderAmount  扣减的金额
- * @param {string}  currency     币种
- * @param {number}  converAmount 兑换的金额
- * @param {array}   langueList   语言配置
- * @param {boolean} decrFlag     true不扣减账号 (捕鱼专用)
- */
-func DeductUserAccountNew(openId string, outOrderNo string, amount float32, currency string, converAmount float32, langueList []interface{}) (string, error) {
-	url := "/game/acct/convert"
-
-	data := map[string]interface{}{
-		"gameNo":       config.GetJavaGameId(),
-		"channelId":    config.GetJavaChannelId(),
-		"requestTime":  time.Now().Unix(),
-		"openId":       openId,
-		"currency":     currency,
-		"outOrderNo":   outOrderNo,
-		"amount":       amount,
-		"converAmount": converAmount,
-		"langueList":   langueList,
+	res, pErr := post(url, data)
+	if pErr != nil {
+		return nil, pErr
 	}
 
-	return post(url, data)
+	responseData := new(DeductUserAccountStruct)
+	err := json.Unmarshal([]byte(res), responseData)
+
+	return responseData, err
 }
 
 // 查询货币配置列表

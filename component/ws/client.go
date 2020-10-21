@@ -77,7 +77,7 @@ func (c *Client) read() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			logrus.Warnf("接受消息异常. err:%s, stack:%s", err, string(debug.Stack()))
+			c.Warnf("接受消息异常. err:%s, stack:%s", err, string(debug.Stack()))
 		}
 	}()
 
@@ -87,7 +87,7 @@ func (c *Client) read() {
 
 	pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	if pongWaitErr != nil {
-		logrus.Warnf("设置 SetReadDeadline 异常. err:", pongWaitErr)
+		c.Warnf("设置 SetReadDeadline 异常. err:", pongWaitErr)
 		return
 	}
 
@@ -109,7 +109,7 @@ func (c *Client) read() {
 			return nil
 		}
 
-		logrus.Infof("客户端离线, 错误码：%s, 错误：%s", code, text)
+		c.Infof("客户端离线, 错误码：%s, 错误：%s", code, text)
 
 		// offline
 		value, ok := getHandlers("offline")
@@ -143,7 +143,7 @@ func (c *Client) write() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			logrus.Warnf("发送消息异常, err:%s, stack:%s", err, string(debug.Stack()))
+			c.Warnf("发送消息异常, err:%s, stack:%s", err, string(debug.Stack()))
 		}
 	}()
 
@@ -170,7 +170,7 @@ func (c *Client) write() {
 
 			_, wErr := w.Write(message)
 			if wErr != nil {
-				logrus.Warnf("websocket 发送消息异常. err:%s, msg:%s", wErr, message)
+				c.Warnf("websocket 发送消息异常. err:%s, msg:%s", wErr, message)
 			}
 
 			if err := w.Close(); err != nil {
@@ -191,7 +191,7 @@ func (c *Client) sendMsg(data interface{}) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			logrus.Errorf("发送消息异常. err:%s", err)
+			c.Errorf("发送消息异常. err:%s", err)
 		}
 	}()
 
@@ -202,11 +202,11 @@ func (c *Client) sendMsg(data interface{}) {
 
 	jsonByte, err := json.Marshal(data)
 	if err != nil {
-		logrus.Warnf("sendMsg, JSON 编码异常. err:%s, stack:%s", err, string(debug.Stack()))
+		c.Warnf("sendMsg, JSON 编码异常. err:%s, stack:%s", err, string(debug.Stack()))
 		return
 	}
 
-	logrus.Infof("消息推送:%s", jsonByte)
+	c.Infof("消息推送:%s", jsonByte)
 
 	// 启用加密传输
 	if utils.IsAuth() {
@@ -239,13 +239,7 @@ func (c *Client) Error(cmd string, row definition.ErrMsgStruct) {
 
 // 统一消息推送格式
 // uid 模式消息推送
-func (c *Client) PushUid(uid string, cmd string, data interface{}) {
-	single(uid, cmd, data)
-}
-
-// 统一消息推送格式
-// uid 模式消息推送
-func (c *Client) PushUsers(users []string, cmd string, data interface{}) {
+func (c *Client) Broadcast(users []string, cmd string, data interface{}) {
 	broadcast(users, cmd, data)
 }
 

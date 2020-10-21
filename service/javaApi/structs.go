@@ -1,11 +1,15 @@
 package javaApi
 
+type api struct {
+	Message string `json:"message"`
+	RspCode string `json:"rspCode"`
+	RspTime int    `json:"rspTime"`
+}
+
 // 查询货币配置列表
 type GetCurrencyListStruct struct {
-	Message string                      `json:"message"`
-	RspCode string                      `json:"rspCode"`
-	RspTime int                         `json:"rspTime"`
-	Data    []GetCurrencyListDataStruct `json:"data"`
+	api
+	Data []GetCurrencyListDataStruct `json:"data"`
 }
 
 //"currency": "USDT",
@@ -31,10 +35,8 @@ type GetCurrencyListDataStruct struct {
 
 // 查询货币配置列表
 type GetBalanceListStruct struct {
-	Message string                              `json:"message"`
-	RspCode string                              `json:"rspCode"`
-	RspTime int                                 `json:"rspTime"`
-	Data    map[string]GetBalanceListDataStruct `json:"data"`
+	api
+	Data map[string]GetBalanceListDataStruct `json:"data"`
 }
 
 // 查询货币配置列表
@@ -45,4 +47,17 @@ type GetBalanceListDataStruct struct {
 	Frozen         float64 `json:"frozen"`
 	WorthUSDT      float64 `json:"worthUSDT"`
 	Sort           int     `json:"sort"`
+}
+
+// 用户账户扣减
+//{
+//	"rspCode":"0000",
+//	"sysStatus":null,
+//	"message":"成功",
+//	"data":"G15857217532162UHZO4",
+//	"rspTime":1585731752675
+//}
+type DeductUserAccountStruct struct {
+	api
+	Data string `json:"data"`
 }

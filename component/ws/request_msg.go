@@ -3,7 +3,6 @@ package ws
 import (
 	"encoding/json"
 	"github.com/rs/xid"
-	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
@@ -28,7 +27,7 @@ func parseMsg(c *Client, message []byte) {
 
 	if isAuth && c.commonKey == "" {
 		closeClient(c)
-		logrus.Warnf("客户未进行认证, common-key 为空")
+		c.Warnf("客户未进行认证, common-key 为空")
 		return
 	}
 
@@ -115,7 +114,7 @@ func parseMsg(c *Client, message []byte) {
 		"jwt":     c.ParamJwt,
 	})
 
-	logrus.Infof("接收消息:%s", msgJson)
+	c.Infof("接收消息:%s", msgJson)
 
 	value, ok := getHandlers(cmd)
 	if ok == false {
