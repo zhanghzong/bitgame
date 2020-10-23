@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/zhanghuizong/bitgame/app/constants/envConst"
+	"log"
 	"os"
 	"time"
 )
@@ -14,21 +14,22 @@ func init() {
 	logrus.SetFormatter(getTextFormatter())
 
 	// 设置日志输出流
-	name := getFileName()
-	file, err := os.OpenFile("logs/"+name, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err == nil {
-		logrus.SetOutput(file)
+	logPath := viper.GetString("log.path")
+	if logPath == "" {
+		logPath = "logs/"
+	}
+
+	fullName := logPath + string(os.PathSeparator) + getFileName()
+	file, err := os.OpenFile(fullName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Printf("打开日志文件异常. err:%s", err)
+		return
 	}
 
 	// 设置日志级别
-	env := viper.GetString("app.env")
-	if env == envConst.Prod {
-		logrus.SetLevel(logrus.InfoLevel)
-	} else {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
-
-	// TODO Hooks
+	logLevel := logrus.Level(viper.GetInt("log.level"))
+	logrus.SetLevel(logLevel)
+	logrus.SetOutput(file)
 }
 
 func getFileName() string {

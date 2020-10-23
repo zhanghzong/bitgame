@@ -4,7 +4,6 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 	"runtime/debug"
 )
@@ -20,9 +19,9 @@ func init() {
 		os.Exit(0)
 	}
 
-	log.Println("应用配置文件加载成功")
-
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		logrus.Infof("Config file changed:%s", e.Name)
 	})
+
+	logrus.Info("应用配置文件加载成功...")
 }

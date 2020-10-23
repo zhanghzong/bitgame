@@ -18,7 +18,7 @@ func init() {
 	var err error
 	Db, err = gorm.Open("mysql", dsn)
 	if err != nil {
-		logrus.Fatalf("MySQL 连接异常,err:%s", err)
+		logrus.Fatalf("MySQL 连接异常,err:%s, dsn:%s", err, dsn)
 		return
 	}
 

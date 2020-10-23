@@ -27,7 +27,7 @@ func post(api string, data map[string]interface{}) (string, error) {
 	url := host + api
 
 	client := &http.Client{}
-	client.Timeout = time.Second * 3
+	client.Timeout = time.Second * 10
 
 	jsonRes, jErr := json.Marshal(data)
 	if jErr != nil {

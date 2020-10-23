@@ -38,6 +38,39 @@ func DeductUserAccount(openId string, currency string, outOrderNo string, amount
 	return responseData, err
 }
 
+/**
+ * 用户账户增加
+ * @param openId string 用户id
+ * @param currency  string 货币名称
+ * @param outOrderNo  string 游戏订单编号
+ * @param orderNo  string 平台订单编号
+ * @param amount float32 增加金额
+ */
+func AcctIncrease(openId string, currency string, outOrderNo string, orderNo string, amount float64) (*AcctIncreaseStruct, error) {
+	url := "/game/acct/increase"
+
+	data := map[string]interface{}{
+		"gameNo":      config.GetJavaGameId(),
+		"channelId":   config.GetJavaChannelId(),
+		"requestTime": time.Now().Unix(),
+		"openId":      openId,
+		"currency":    currency,
+		"outOrderNo":  outOrderNo,
+		"orderNo":     orderNo,
+		"amount":      amount,
+	}
+
+	res, pErr := post(url, data)
+	if pErr != nil {
+		return nil, pErr
+	}
+
+	responseData := new(AcctIncreaseStruct)
+	err := json.Unmarshal([]byte(res), responseData)
+
+	return responseData, err
+}
+
 // 查询货币配置列表
 func GetCurrencyList() (*GetCurrencyListStruct, error) {
 	url := "/game/currency/getCurrencyList"

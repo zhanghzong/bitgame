@@ -50,14 +50,24 @@ type GetBalanceListDataStruct struct {
 }
 
 // 用户账户扣减
-//{
-//	"rspCode":"0000",
-//	"sysStatus":null,
-//	"message":"成功",
-//	"data":"G15857217532162UHZO4",
-//	"rspTime":1585731752675
-//}
+// {
+//   "rspCode":"0000",
+//   "sysStatus":null,
+//   "message":"成功",
+//   "data":"G15857217532162UHZO4",
+//   "rspTime":1585731752675
+// }
 type DeductUserAccountStruct struct {
+	api
+	Data string `json:"data"`
+}
+
+// {
+//   "rspCode":"0000",
+//   "message":"成功",
+//   "rspTime":1585731991006
+// }
+type AcctIncreaseStruct struct {
 	api
 	Data string `json:"data"`
 }
