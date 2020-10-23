@@ -22,6 +22,4 @@ func init() {
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		logrus.Infof("Config file changed:%s", e.Name)
 	})
-
-	logrus.Info("应用配置文件加载成功...")
 }
