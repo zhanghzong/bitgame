@@ -13,7 +13,7 @@ import (
 // prod= 生产环境
 // app.env=dev
 func GetAppEnv() string {
-	return apollo.Config.GetValue("app.env")
+	return viper.GetString("app.env")
 }
 
 // 是否启用加密通信
