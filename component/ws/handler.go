@@ -1,11 +1,10 @@
 package ws
 
 import (
-	"github.com/zhanghuizong/bitgame/app/definition"
 	"sync"
 )
 
-type functions func(client *Client, message *definition.RequestMsg)
+type functions func(client *Client)
 
 var (
 	handlers = make(map[string]functions)

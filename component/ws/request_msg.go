@@ -47,7 +47,7 @@ func parseMsg(c *Client, message []byte) {
 
 	// 首次解密 JWT
 	params := requestMsg.Params
-	if c.ParamJwt.Data.Uid == "" {
+	if c.Jwt.Data.Uid == "" {
 		var jwtStr []byte
 		jwtData := definition.ParamJwt{}
 
@@ -82,22 +82,22 @@ func parseMsg(c *Client, message []byte) {
 		}
 
 		// 记录 JWT 数据
-		c.ParamJwt = jwtData
+		c.Jwt = jwtData
 
 		// 参数异常
-		if c.ParamJwt.Data.Uid == "" {
+		if c.Jwt.Data.Uid == "" {
 			c.insidePushError(errConst.BadJwtToken)
 			return
 		}
 
 		// 首次连接
 		if c.Uid == "" {
-			c.Uid = c.ParamJwt.Data.Uid
+			c.Uid = c.Jwt.Data.Uid
 
 			// websocket hook 上线操作
 			value, ok := getHandlers("online")
 			if ok {
-				value(c, nil)
+				value(c)
 			}
 
 			// 异地登录检测
@@ -111,7 +111,7 @@ func parseMsg(c *Client, message []byte) {
 
 	msgJson, _ := json.Marshal(map[string]interface{}{
 		"message": requestMsg,
-		"jwt":     c.ParamJwt,
+		"jwt":     c.Jwt,
 	})
 
 	c.Infof("接收消息:%s", msgJson)
@@ -129,7 +129,9 @@ func parseMsg(c *Client, message []byte) {
 
 	c.Data["uid"] = c.Uid
 
-	value(c, requestMsg)
+	c.Msg = requestMsg
+
+	value(c)
 }
 
 // 单点登录

@@ -11,7 +11,7 @@ type changeListener struct {
 // 配置被修改
 func (c *changeListener) OnChange(changeEvent *storage.ChangeEvent) {
 	for key, value := range changeEvent.Changes {
-		logrus.Infof("Apollo 配置文件发生变化, namespace:%s, key:%s, value:%s", changeEvent.Namespace, key, value)
+		logrus.Infof("Apollo 配置文件发生变化, namespace:%+v, key:%s, value:%+v", changeEvent.Namespace, key, value)
 	}
 }
 

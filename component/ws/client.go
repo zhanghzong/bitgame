@@ -45,11 +45,11 @@ type Client struct {
 	// 用户ID
 	Uid string
 
-	// commonKey 加密认证 key
-	commonKey string
-
 	// 协议默认参数
-	ParamJwt definition.ParamJwt
+	Jwt definition.ParamJwt
+
+	// 请求数据
+	Msg *definition.RequestMsg
 
 	// 管理
 	Hub *ClientManager
@@ -59,6 +59,9 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	// commonKey 加密认证 key
+	commonKey string
 
 	*logrus.Entry
 }
@@ -114,7 +117,7 @@ func (c *Client) read() {
 		// offline
 		value, ok := getHandlers("offline")
 		if ok {
-			value(c, nil)
+			value(c)
 		}
 
 		// 删除 redis 登录记录
