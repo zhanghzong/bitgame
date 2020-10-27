@@ -15,7 +15,7 @@ func init() {
 	viper.WatchConfig()
 	err := viper.ReadInConfig()
 	if err != nil {
-		logrus.Infof("配置文件加载异常：", err, string(debug.Stack()))
+		logrus.Infof("配置文件加载异常:%s, stack:%s", err, string(debug.Stack()))
 		os.Exit(0)
 	}
 

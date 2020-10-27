@@ -3,7 +3,6 @@ package ws
 import (
 	"encoding/json"
 	"github.com/rs/xid"
-	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"github.com/zhanghuizong/bitgame/app/models"
@@ -15,16 +14,6 @@ import (
 
 func parseMsg(c *Client, message []byte) {
 	isAuth := utils.IsAuth()
-
-	// (预发|生产)禁止使用未加密数据传输
-	if !isAuth {
-		env := config.GetAppEnv()
-		if env == envConst.Pre || env == envConst.Prod {
-			c.insidePushError(errConst.BadJwtToken)
-			return
-		}
-	}
-
 	if isAuth && c.commonKey == "" {
 		closeClient(c)
 		c.Warnf("客户未进行认证, common-key 为空")
@@ -48,60 +37,47 @@ func parseMsg(c *Client, message []byte) {
 	// 首次解密 JWT
 	params := requestMsg.Params
 	if c.Jwt.Data.Uid == "" {
-		var jwtStr []byte
-		jwtData := definition.ParamJwt{}
-
 		// 解密 JWT
-		if isAuth {
-			var jwtErr error
-			jwtRes := jwt.Decode(params["jwt"].(string), config.GetJwtKey())
-			jwtStr, jwtErr = json.Marshal(jwtRes)
+		reqJwtStr, isOk := params["jwt"].(string)
+		if isAuth && isOk && reqJwtStr != "" {
+			jwtRes := jwt.Decode(reqJwtStr, config.GetJwtKey())
+
+			// jwt 格式异常
+			jwtStr, jwtErr := json.Marshal(jwtRes)
 			if jwtErr != nil {
 				c.insidePushError(errConst.BadJwtToken)
 				return
 			}
-		} else {
-			requestJwt, ok := params["jwt"].(map[string]interface{})
 
-			// 不存在 jwt 参数
-			if !ok {
-				uid, uidOk := params["uid"].(string)
-				if uidOk {
-					jwtData.Data.Uid = uid
-					jwtData.Data.UserId = int(time.Now().Unix())
-					jwtData.Data.ShowName = uid
+			jwtData := definition.ParamJwt{}
+			jsonErr := json.Unmarshal(jwtStr, &jwtData)
+			if jsonErr != nil {
+				c.insidePushError(errConst.BadJwtToken)
+				return
+			}
+
+			// 记录 JWT 数据
+			c.Jwt = jwtData
+
+			// 首次连接
+			if c.Uid == "" {
+				c.Uid = c.Jwt.Data.Uid
+
+				// websocket hook 上线操作
+				value, ok := getHandlers("online")
+				if ok {
+					value(c)
 				}
+
+				// 异地登录检测
+				singleLogin(c)
 			}
-			jwtStr, _ = json.Marshal(requestJwt)
-		}
-
-		jsonErr := json.Unmarshal(jwtStr, &jwtData)
-		if jsonErr != nil {
-			c.insidePushError(errConst.BadJwtToken)
-			return
-		}
-
-		// 记录 JWT 数据
-		c.Jwt = jwtData
-
-		// 参数异常
-		if c.Jwt.Data.Uid == "" {
-			c.insidePushError(errConst.BadJwtToken)
-			return
-		}
-
-		// 首次连接
-		if c.Uid == "" {
-			c.Uid = c.Jwt.Data.Uid
-
-			// websocket hook 上线操作
-			value, ok := getHandlers("online")
-			if ok {
-				value(c)
+		} else {
+			uid, isOk := params["uid"].(string)
+			if isOk {
+				c.Jwt.Data.Uid = uid
+				c.Uid = uid
 			}
-
-			// 异地登录检测
-			singleLogin(c)
 		}
 	}
 

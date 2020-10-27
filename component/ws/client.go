@@ -90,7 +90,7 @@ func (c *Client) read() {
 
 	pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	if pongWaitErr != nil {
-		c.Warnf("设置 SetReadDeadline 异常. err:", pongWaitErr)
+		c.Warnf("设置 SetReadDeadline 异常. err:%s", pongWaitErr)
 		return
 	}
 
@@ -112,7 +112,7 @@ func (c *Client) read() {
 			return nil
 		}
 
-		c.Infof("客户端离线, 错误码：%s, 错误：%s", code, text)
+		c.Infof("客户端离线, 错误码：%d, 错误：%s", code, text)
 
 		// offline
 		value, ok := getHandlers("offline")
@@ -227,7 +227,7 @@ func (c *Client) Success(cmd string, data interface{}) {
 		return
 	}
 
-	single(c.Uid, cmd, data)
+	pushClient(c, pushSuccess(cmd, data))
 }
 
 // 统一消息推送格式
@@ -237,7 +237,7 @@ func (c *Client) Error(cmd string, row definition.ErrMsgStruct) {
 		return
 	}
 
-	single(c.Uid, cmd, pushError(cmd, row))
+	pushClient(c, pushError(cmd, row))
 }
 
 // 统一消息推送格式

@@ -6,8 +6,22 @@ import (
 	"os"
 )
 
+func pushClient(c *Client, data interface{}) {
+	uid := c.Uid
+	if uid == "" {
+		c.sendMsg(data)
+		return
+	}
+
+	single(uid, data)
+}
+
 // 消息单推
-func single(uid string, cmd string, data interface{}) {
+func single(uid string, data interface{}) {
+	if uid == "" {
+		return
+	}
+
 	client := WsManager.GetClientByUserId(uid)
 	if client == nil {
 		hostname, _ := os.Hostname()
@@ -15,23 +29,23 @@ func single(uid string, cmd string, data interface{}) {
 		channelMsg.Type = "response"
 		channelMsg.Hostname = hostname
 		channelMsg.Users = []string{uid}
-		channelMsg.Data = pushSuccess(cmd, data)
+		channelMsg.Data = data
 		redis.Publish(channelMsg)
 
 		return
 	}
 
-	res := pushSuccess(cmd, data)
-	client.sendMsg(res)
+	client.sendMsg(data)
 }
 
 // 消息广播
 func broadcast(users []string, cmd string, data interface{}) {
 	for _, uid := range users {
-		single(uid, cmd, data)
+		single(uid, pushSuccess(cmd, data))
 	}
 }
 
+// 正常消息格式
 func pushSuccess(cmd string, data interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"cmd":  cmd,
@@ -40,6 +54,7 @@ func pushSuccess(cmd string, data interface{}) map[string]interface{} {
 	}
 }
 
+// 错误消息格式
 func pushError(cmd string, row definition.ErrMsgStruct) map[string]interface{} {
 	return map[string]interface{}{
 		"cmd":  "error",

@@ -69,8 +69,6 @@ func Subscribe(clientManger definition.ClientManagerInterface) {
 
 	// 处理消息
 	for msg := range ch {
-		logrus.Infof("Redis 订阅通道接收数据. msg:%s", msg)
-
 		channelMsg := new(definition.RedisChannel)
 		err := json.Unmarshal([]byte(msg.Payload), channelMsg)
 		if err != nil {
