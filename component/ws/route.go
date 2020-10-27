@@ -7,7 +7,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/rsa"
-	"log"
 	"net/http"
 )
 
@@ -42,9 +41,9 @@ func ServeWs(context *gin.Context) {
 	if utils.IsAuth() {
 		auth := context.Query("auth")
 		commonKey, _ = rsa.Authorize(auth)
-		log.Println("commonKey:", commonKey)
-
 		if commonKey == "" {
+			logrus.Errorf("commonKey 解密失败. auth:%s", auth)
+
 			conn.WriteJSON(map[string]interface{}{
 				"cmd":  "authorize",
 				"code": 1,
