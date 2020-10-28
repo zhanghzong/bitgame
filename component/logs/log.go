@@ -21,7 +21,7 @@ func init() {
 	}
 
 	// 日志分割器
-	fullName := logPath + string(os.PathSeparator) + "%Y%m%d.log"
+	fullName := logPath + string(os.PathSeparator) + "%Y-%m-%d.log"
 	out, err := rotatelogs.New(
 		fullName, // 日志文件名称
 
