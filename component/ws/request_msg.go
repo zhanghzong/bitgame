@@ -3,6 +3,7 @@ package ws
 import (
 	"encoding/json"
 	"github.com/rs/xid"
+	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"github.com/zhanghuizong/bitgame/app/models"
@@ -75,8 +76,13 @@ func parseMsg(c *Client, message []byte) {
 		} else {
 			uid, isOk := params["uid"].(string)
 			if isOk {
-				c.Jwt.Data.Uid = uid
-				c.Uid = uid
+				// 绑定 uid与socketId
+				env := config.GetAppEnv()
+				if env == envConst.Local || env == envConst.Dev || env == envConst.Test {
+					c.Jwt.Data.Uid = uid
+					c.Uid = uid
+					c.Hub.userList[c.Uid] = c.SocketId
+				}
 			}
 		}
 	}
