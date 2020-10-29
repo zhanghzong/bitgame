@@ -36,7 +36,7 @@ func GetRequestMsg(message []byte, commonKey string) *definition.RequestMsg {
 	requestMsgData := &definition.RequestMsg{}
 	errMsg := json.Unmarshal(message, requestMsgData)
 	if errMsg != nil {
-		log.Println("解析数据异常：", errMsg)
+		log.Println("解析数据异常：", errMsg, string(message))
 		return nil
 	}
 
