@@ -14,7 +14,6 @@ import (
 	"github.com/zhanghuizong/bitgame/app/models"
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/aes"
-	"log"
 	"runtime/debug"
 	"time"
 )
@@ -130,7 +129,7 @@ func (c *Client) read() {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Println("websocket IsUnexpectedCloseError", err)
+				c.Println("websocket IsUnexpectedCloseError", err)
 			}
 			break
 		}

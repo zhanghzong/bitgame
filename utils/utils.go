@@ -3,10 +3,10 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"github.com/zhanghuizong/bitgame/service/config"
 	"github.com/zhanghuizong/bitgame/utils/aes"
-	"log"
 	"strings"
 )
 
@@ -28,7 +28,7 @@ func GetRequestMsg(message []byte, commonKey string) *definition.RequestMsg {
 		var err error
 		message, err = aes.Decode(msgData, []byte(commonKey))
 		if err != nil {
-			log.Println("消息体解密异常", err)
+			logrus.Errorf("消息体解密异常. err:%s, msg:%s", err, string(message))
 			return nil
 		}
 	}
@@ -36,7 +36,7 @@ func GetRequestMsg(message []byte, commonKey string) *definition.RequestMsg {
 	requestMsgData := &definition.RequestMsg{}
 	errMsg := json.Unmarshal(message, requestMsgData)
 	if errMsg != nil {
-		log.Println("解析数据异常：", errMsg, string(message))
+		logrus.Errorf("接收消息解析异常. err:%s, msg:%s", errMsg, string(message))
 		return nil
 	}
 

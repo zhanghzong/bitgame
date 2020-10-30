@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"log"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -26,7 +26,7 @@ func Decode(token string, secret string) map[string]interface{} {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.Printf("解密JWT异常：%s\n", err)
+			logrus.Errorf("解密JWT异常. err:%s, token:%s, secret:%s", err, token, secret)
 		}
 	}()
 
@@ -35,7 +35,7 @@ func Decode(token string, secret string) map[string]interface{} {
 	})
 
 	if err != nil {
-		log.Println("解密 JWT Token 异常：" + err.Error())
+		logrus.Errorf("解密JWT失败. err:%s, token:%s, secret:%s", err, token, secret)
 		return map[string]interface{}{}
 	}
 
