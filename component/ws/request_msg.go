@@ -106,7 +106,7 @@ func parseMsg(c *Client, message []byte) {
 
 	_, isOk := c.Data["uid"]
 	if isOk {
-		c.Data["rid"] = xid.New().String()
+		c.Data["pid"] = xid.New().String()
 	}
 
 	c.Data["uid"] = c.Uid

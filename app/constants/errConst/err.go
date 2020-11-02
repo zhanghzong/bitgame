@@ -1,9 +1,9 @@
 package errConst
 
-var BadCmdCode string = "1000"
-var NoCmdCode string = "1001"
-var BadJwtTokenCode string = "1002"
-var AlreadyLoginCode string = "1003"
+var BadCmdCode = "1000"
+var NoCmdCode = "1001"
+var BadJwtTokenCode = "1002"
+var AlreadyLoginCode = "1003"
 
 var BadCmd = map[string]interface{}{
 	"code":  BadCmdCode,

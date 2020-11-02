@@ -8,19 +8,19 @@ import (
 
 func getTextFormatter() *nested.Formatter {
 	return &nested.Formatter{
-		TimestampFormat: "2006-01-02 15:04:05",
+		TimestampFormat: "2006-01-02 15:04:05.000",
 		CallerFirst:     true,
 		NoColors:        true,
 		CustomCallerFormatter: func(frame *runtime.Frame) string {
 			return " [" + frame.Function + "]"
 		},
-		FieldsOrder: []string{"rid", "tid", "uid"},
+		FieldsOrder: []string{"pid", "tid", "uid"},
 	}
 }
 
 func getJsonFormatter() *logrus.JSONFormatter {
 	return &logrus.JSONFormatter{
-		TimestampFormat: "2006-01-02 15:04:05",
+		TimestampFormat: "2006-01-02 15:04:05.000",
 		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
 			return frame.Function, ""
 		},
