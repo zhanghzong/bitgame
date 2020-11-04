@@ -15,7 +15,7 @@ func (t LoginModel) AddSocketId(uid string, socketId string) {
 	cmd := redis.Redis.HSet(key, uid, socketId)
 	_, err := cmd.Result()
 	if err != nil {
-		logrus.Warn("设置 用户与websocket绑定关系 Redis 异常", err, key, uid, socketId)
+		logrus.Warnln("设置 用户与websocket绑定关系 Redis 异常", err, key, uid, socketId)
 	}
 }
 

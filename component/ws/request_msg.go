@@ -14,10 +14,16 @@ import (
 )
 
 func parseMsg(c *Client, message []byte) {
+	// ping/pong
+	if string(message) == "ping" {
+		c.send <- []byte("pong")
+		return
+	}
+
 	isAuth := utils.IsAuth()
 	if isAuth && c.commonKey == "" {
 		closeClient(c)
-		c.Warnf("客户未进行认证, common-key 为空")
+		c.Warnln("客户未进行认证, common-key 为空")
 		return
 	}
 
@@ -46,6 +52,7 @@ func parseMsg(c *Client, message []byte) {
 			// jwt 格式异常
 			jwtStr, jwtErr := json.Marshal(jwtRes)
 			if jwtErr != nil {
+				c.Warnln("解析 jwt 执行 json.Marshal 异常", jwtErr)
 				c.insidePushError(errConst.BadJwtToken)
 				return
 			}
@@ -53,6 +60,7 @@ func parseMsg(c *Client, message []byte) {
 			jwtData := definition.ParamJwt{}
 			jsonErr := json.Unmarshal(jwtStr, &jwtData)
 			if jsonErr != nil {
+				c.Warnln("解析 jwt 执行 json.Unmarshal 异常", jsonErr)
 				c.insidePushError(errConst.BadJwtToken)
 				return
 			}

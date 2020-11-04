@@ -26,7 +26,7 @@ func Decode(token string, secret string) map[string]interface{} {
 	defer func() {
 		err := recover()
 		if err != nil {
-			logrus.Errorf("解密JWT异常. err:%s, token:%s, secret:%s", err, token, secret)
+			logrus.Errorln("解密JWT异常", err, "token:"+token, "secret:"+secret)
 		}
 	}()
 
@@ -35,7 +35,7 @@ func Decode(token string, secret string) map[string]interface{} {
 	})
 
 	if err != nil {
-		logrus.Errorf("解密JWT失败. err:%s, token:%s, secret:%s", err, token, secret)
+		logrus.Errorln("解密JWT失败", err, "token:"+token, "secret:"+secret)
 		return map[string]interface{}{}
 	}
 

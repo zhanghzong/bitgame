@@ -39,7 +39,7 @@ func init() {
 
 	_, err := Redis.Ping().Result()
 	if err != nil {
-		logrus.Fatalf("Redis 连接异常, err:%s, addr:%s", err, addr)
+		logrus.Fatalln("Redis 连接异常", err, addr)
 		return
 	}
 
@@ -51,14 +51,14 @@ func Subscribe(clientManger definition.ClientManagerInterface) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			logrus.Errorf("Redis 消息订阅异常. err:%s", err)
+			logrus.Errorln("Redis 消息订阅异常", err)
 		}
 	}()
 
 	pubSub := Redis.Subscribe(redisConst.ChannelName)
 	msg, err := pubSub.Receive()
 	if err != nil {
-		logrus.Errorf("Redis 消息订阅异常. err:%s, msg:%s", err, msg)
+		logrus.Errorln("Redis 消息订阅异常", err, msg)
 		return
 	}
 
@@ -72,7 +72,7 @@ func Subscribe(clientManger definition.ClientManagerInterface) {
 		channelMsg := new(definition.RedisChannel)
 		err := json.Unmarshal([]byte(msg.Payload), channelMsg)
 		if err != nil {
-			logrus.Errorf("Redis 订阅消息解析异常. err:%s", err)
+			logrus.Errorln("Redis 订阅消息解析异常", err)
 			continue
 		}
 
@@ -87,6 +87,6 @@ func Publish(message interface{}) {
 	cmd := Redis.Publish(redisConst.ChannelName, res)
 	_, err := cmd.Result()
 	if err != nil {
-		logrus.Errorf("Redis publish 异常. err:%s", err)
+		logrus.Errorln("Redis publish 异常", err)
 	}
 }

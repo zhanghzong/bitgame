@@ -28,7 +28,7 @@ func GetRequestMsg(message []byte, commonKey string) *definition.RequestMsg {
 		var err error
 		message, err = aes.Decode(msgData, []byte(commonKey))
 		if err != nil {
-			logrus.Errorf("消息体解密异常. err:%s, msg:%s", err, string(message))
+			logrus.Errorln("消息体解密异常", err, string(message))
 			return nil
 		}
 	}
@@ -36,7 +36,7 @@ func GetRequestMsg(message []byte, commonKey string) *definition.RequestMsg {
 	requestMsgData := &definition.RequestMsg{}
 	errMsg := json.Unmarshal(message, requestMsgData)
 	if errMsg != nil {
-		logrus.Errorf("接收消息解析异常. err:%s, msg:%s", errMsg, string(message))
+		logrus.Errorln("接收消息解析异常", errMsg, string(message))
 		return nil
 	}
 

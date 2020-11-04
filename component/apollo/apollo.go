@@ -23,7 +23,7 @@ func init() {
 	var err error
 	Config, err = agollo.StartWithConfig(func() (*config.AppConfig, error) { return apolloConfig, nil })
 	if err != nil {
-		logrus.Fatalf("阿波罗连接异常, err:%s", err)
+		logrus.Fatalln("阿波罗连接异常", err)
 	}
 
 	Config.AddChangeListener(&changeListener{})

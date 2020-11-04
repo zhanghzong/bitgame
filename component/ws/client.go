@@ -79,7 +79,7 @@ func (c *Client) read() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			c.Warnf("接受消息异常. err:%s, stack:%s", err, string(debug.Stack()))
+			c.Warnln("接受消息异常", err, string(debug.Stack()))
 		}
 	}()
 
@@ -89,7 +89,7 @@ func (c *Client) read() {
 
 	pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	if pongWaitErr != nil {
-		c.Warnf("设置 SetReadDeadline 异常. err:%s", pongWaitErr)
+		c.Warnln("设置 SetReadDeadline 异常", pongWaitErr)
 		return
 	}
 
@@ -135,8 +135,7 @@ func (c *Client) read() {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
-		// 解析数据格式
-		parseMsg(c, message)
+		go parseMsg(c, message)
 	}
 }
 
@@ -145,7 +144,7 @@ func (c *Client) write() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			c.Warnf("发送消息异常, err:%s, stack:%s", err, string(debug.Stack()))
+			c.Warnln("发送消息异常", err, string(debug.Stack()))
 		}
 	}()
 
@@ -172,7 +171,7 @@ func (c *Client) write() {
 
 			_, wErr := w.Write(message)
 			if wErr != nil {
-				c.Warnf("websocket 发送消息异常. err:%s, msg:%s", wErr, message)
+				c.Warnln("websocket 发送消息异常", wErr, message)
 			}
 
 			if err := w.Close(); err != nil {
@@ -193,7 +192,7 @@ func (c *Client) sendMsg(data interface{}) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			c.Errorf("发送消息异常. err:%s", err)
+			c.Errorln("发送消息异常", err, string(debug.Stack()))
 		}
 	}()
 
@@ -204,7 +203,7 @@ func (c *Client) sendMsg(data interface{}) {
 
 	jsonByte, err := json.Marshal(data)
 	if err != nil {
-		c.Warnf("sendMsg, JSON 编码异常. err:%s, stack:%s", err, string(debug.Stack()))
+		c.Warnln("消息单播执行(json.Marshal)异常", err, string(debug.Stack()))
 		return
 	}
 

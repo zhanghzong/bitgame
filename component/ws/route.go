@@ -22,7 +22,7 @@ var upgrader = websocket.Upgrader{
 func ServeWs(context *gin.Context) {
 	conn, err := upgrader.Upgrade(context.Writer, context.Request, nil)
 	if err != nil {
-		logrus.Errorf("Websocket 协议升级异常. err:%s", err)
+		logrus.Errorln("Websocket 协议升级异常.", err)
 
 		if conn == nil {
 			return
@@ -30,7 +30,7 @@ func ServeWs(context *gin.Context) {
 
 		cErr := conn.Close()
 		if cErr != nil {
-			logrus.Errorf("关闭协议异常. err:%s", cErr)
+			logrus.Errorln("关闭协议异常.", cErr)
 		}
 
 		return

@@ -56,13 +56,13 @@ func post(api string, data map[string]interface{}) (string, error) {
 
 	resp, clientErr := client.Do(req)
 	if clientErr != nil {
-		logrus.Warnf("POST 请求接口异常. err:%s, url:%s", clientErr, url)
+		logrus.Warnln("POST 请求接口异常", clientErr, url)
 		return "", clientErr
 	}
 
 	body, readErr := ioutil.ReadAll(resp.Body)
 	if readErr != nil {
-		logrus.Warnf("POST 读取响应数据异常. er:%s, url:%s", readErr, url)
+		logrus.Warnln("POST 读取响应数据异常", readErr, url)
 		return "", readErr
 	}
 

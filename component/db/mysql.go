@@ -23,7 +23,7 @@ func (t dbLog) Print(values ...interface{}) {
 		executePath := values[1]      // 文件路径
 		executeTime := values[2]      // 执行时间
 		executeSql := valuesFormat[3] // 执行SQL语句
-		txt = fmt.Sprintf("%s; [%s] %s", executeSql, executeTime, executePath)
+		txt = fmt.Sprintf("SQL:%s; [%s] %s", executeSql, executeTime, executePath)
 		logrus.Println(txt)
 	} else {
 		logrus.Error(values)
@@ -37,7 +37,7 @@ func init() {
 	var err error
 	Db, err = gorm.Open("mysql", dsn)
 	if err != nil {
-		logrus.Fatalf("MySQL 连接异常,err:%s, dsn:%s", err, dsn)
+		logrus.Fatalln("MySQL 连接异常", err, dsn)
 		return
 	}
 
