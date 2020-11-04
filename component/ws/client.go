@@ -135,7 +135,7 @@ func (c *Client) read() {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
-		go parseMsg(c, message)
+		parseMsg(c, message)
 	}
 }
 
