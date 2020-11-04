@@ -38,11 +38,11 @@ type ParamJwt struct {
 type ParamJwtData struct {
 	Domain     string `json:"domain"`
 	Email      string `json:"email"`
-	OpenId     string `json:"open_id"`
-	PayPwdFlag bool   `json:"pay_pwd_flag"`
-	PwdFlag    bool   `json:"pwd_flag"`
-	ShowName   string `json:"show_name"`
+	OpenId     string `json:"openId"`
+	PayPwdFlag bool   `json:"payPwdFlag"`
+	PwdFlag    bool   `json:"pwdFlag"`
+	ShowName   string `json:"showName"`
 	Timestamp  int    `json:"timestamp"`
 	Uid        string `json:"uid"`
-	UserId     int    `json:"user_id"`
+	UserId     int    `json:"userId"`
 }
