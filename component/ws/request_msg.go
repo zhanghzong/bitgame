@@ -143,7 +143,7 @@ func singleLogin(c *Client) {
 			oldClient.insidePushError(errConst.AlreadyLogin)
 
 			time.AfterFunc(time.Second*3, func() {
-				closeOtherClient(oldClient)
+				closeClientOffline(oldClient)
 			})
 		}
 	}
@@ -154,16 +154,28 @@ func singleLogin(c *Client) {
 	c.Hub.userList[c.Uid] = c.SocketId
 }
 
-func closeOtherClient(c *Client) {
+func closeClient(c *Client) {
 	if c == nil {
 		return
 	}
 
-	// 手动触发离线事件
+	c.Hub.unregister <- c
+	c.conn.Close()
+}
+
+func closeClientOffline(c *Client) {
+	if c == nil {
+		return
+	}
+
+	callOffline(c)
+	closeClient(c)
+}
+
+// 手动触发离线事件
+func callOffline(c *Client) {
 	method := c.conn.CloseHandler()
 	if method != nil {
 		method(1, "异地登录关闭")
 	}
-
-	closeClient(c)
 }

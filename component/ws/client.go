@@ -15,6 +15,7 @@ import (
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/aes"
 	"runtime/debug"
+	"strings"
 	"time"
 )
 
@@ -65,15 +66,6 @@ type Client struct {
 	*logrus.Entry
 }
 
-func closeClient(c *Client) {
-	if c == nil {
-		return
-	}
-
-	c.Hub.unregister <- c
-	c.conn.Close()
-}
-
 // 接受消息
 func (c *Client) read() {
 	defer func() {
@@ -104,13 +96,6 @@ func (c *Client) read() {
 
 	// 设置 websocket 离线处理
 	c.conn.SetCloseHandler(func(code int, text string) error {
-		model := new(models.LoginModel)
-		uid := c.Uid
-		connSocketId := model.GetSocketId(uid)
-		if connSocketId != c.SocketId {
-			return nil
-		}
-
 		c.Infof("客户端离线, 错误码：%d, 错误：%s", code, text)
 
 		// offline
@@ -119,8 +104,12 @@ func (c *Client) read() {
 			value(c)
 		}
 
-		// 删除 redis 登录记录
-		model.DelSocketId(uid)
+		model := new(models.LoginModel)
+		uid := c.Uid
+		connSocketId := model.GetSocketId(uid)
+		if connSocketId == c.SocketId {
+			model.DelSocketId(uid) // 删除 redis 登录记录
+		}
 
 		return nil
 	})
@@ -128,11 +117,16 @@ func (c *Client) read() {
 	for {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				c.Println("websocket IsUnexpectedCloseError", err)
+			// 主动断开连接
+			isOk := strings.Contains(err.Error(), "An existing connection was forcibly closed by the remote host")
+			if isOk {
+				callOffline(c)
 			}
-			break
+
+			c.Infoln("读取消息异常", err)
+			return
 		}
+
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
 		parseMsg(c, message)
@@ -141,6 +135,8 @@ func (c *Client) read() {
 
 // 发送消息
 func (c *Client) write() {
+	ticker := time.NewTicker(pingPeriod)
+
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -148,9 +144,7 @@ func (c *Client) write() {
 		}
 	}()
 
-	ticker := time.NewTicker(pingPeriod)
 	defer func() {
-		closeClient(c)
 		ticker.Stop()
 	}()
 
@@ -166,12 +160,13 @@ func (c *Client) write() {
 
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
+				c.Warnln("websocket-NextWriter 发送消息异常", err, string(message))
 				return
 			}
 
 			_, wErr := w.Write(message)
 			if wErr != nil {
-				c.Warnln("websocket 发送消息异常", wErr, message)
+				c.Warnln("websocket-Write 发送消息异常", wErr, string(message))
 			}
 
 			if err := w.Close(); err != nil {
