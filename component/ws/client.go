@@ -121,9 +121,9 @@ func (c *Client) read() {
 			isOk := strings.Contains(err.Error(), "An existing connection was forcibly closed by the remote host")
 			if isOk {
 				callOffline(c)
+				c.Infoln("读取消息异常", err)
 			}
 
-			c.Infoln("读取消息异常", err)
 			return
 		}
 
