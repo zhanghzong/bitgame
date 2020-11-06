@@ -60,6 +60,8 @@ func post(api string, data map[string]interface{}) (string, error) {
 		return "", clientErr
 	}
 
+	defer resp.Body.Close()
+
 	body, readErr := ioutil.ReadAll(resp.Body)
 	if readErr != nil {
 		logrus.Warnln("POST 读取响应数据异常", readErr, url)
