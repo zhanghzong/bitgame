@@ -56,6 +56,21 @@ func GetJwtKey() string {
 	return apollo.Config.GetValue("jwt.key")
 }
 
+// jwt 过期时间. 单位(小时)
+// jwt.expired=48
+func GetJwtExpired() int {
+	if viper.IsSet("jwt.expired") {
+		expired := viper.GetInt("jwt.expired")
+		if expired <= 0 {
+			expired = 48
+		}
+
+		return expired
+	}
+
+	return apollo.Config.GetIntValue("jwt.expired", 48)
+}
+
 // mysql 数据源
 // mysql.host=localhost
 // mysql.user=root

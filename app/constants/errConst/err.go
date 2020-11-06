@@ -4,6 +4,7 @@ var BadCmdCode = "1000"
 var NoCmdCode = "1001"
 var BadJwtTokenCode = "1002"
 var AlreadyLoginCode = "1003"
+var TokenExpiredCode = "1004"
 
 var BadCmd = map[string]interface{}{
 	"code":  BadCmdCode,
@@ -21,6 +22,11 @@ var BadJwtToken = map[string]interface{}{
 }
 
 var AlreadyLogin = map[string]interface{}{
-	"res": AlreadyLoginCode,
-	"cmd": "ALREADY_LOGGED",
+	"code":  AlreadyLoginCode,
+	"error": "ALREADY_LOGGED",
+}
+
+var TokenExpired = map[string]interface{}{
+	"code":  TokenExpiredCode,
+	"error": "TOKEN_EXPIRED",
 }

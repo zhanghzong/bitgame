@@ -47,12 +47,18 @@ func parseMsg(c *Client, message []byte) {
 		// 解密 JWT
 		reqJwtStr, isOk := params["jwt"].(string)
 		if isAuth && isOk && reqJwtStr != "" {
-			jwtRes := jwt.Decode(reqJwtStr, config.GetJwtKey())
+			secret := config.GetJwtKey()
+			jwtRes, isJwt := jwt.Decode(reqJwtStr, secret)
+			if isJwt != nil {
+				c.Errorln("解密JWT失败", isJwt, "token:"+reqJwtStr, "secret:"+secret)
+				c.insidePushError(errConst.TokenExpired)
+				return
+			}
 
 			// jwt 格式异常
 			jwtStr, jwtErr := json.Marshal(jwtRes)
 			if jwtErr != nil {
-				c.Warnln("解析 jwt 执行 json.Marshal 异常", jwtErr)
+				c.Errorln("解析 jwt 执行 json.Marshal 异常", jwtErr)
 				c.insidePushError(errConst.BadJwtToken)
 				return
 			}
@@ -60,7 +66,7 @@ func parseMsg(c *Client, message []byte) {
 			jwtData := definition.ParamJwt{}
 			jsonErr := json.Unmarshal(jwtStr, &jwtData)
 			if jsonErr != nil {
-				c.Warnln("解析 jwt 执行 json.Unmarshal 异常", jsonErr)
+				c.Errorln("解析 jwt 执行 json.Unmarshal 异常", jsonErr)
 				c.insidePushError(errConst.BadJwtToken)
 				return
 			}
