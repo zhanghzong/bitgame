@@ -51,9 +51,6 @@ type Client struct {
 	// 请求数据
 	Msg *definition.RequestMsg
 
-	// 管理
-	Hub *ClientManager
-
 	// websocket 连接资源
 	conn *websocket.Conn
 
@@ -63,6 +60,7 @@ type Client struct {
 	// commonKey 加密认证 key
 	commonKey string
 
+	// 日志
 	*logrus.Entry
 }
 

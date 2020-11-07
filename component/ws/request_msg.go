@@ -3,7 +3,6 @@ package ws
 import (
 	"encoding/json"
 	"github.com/rs/xid"
-	"github.com/zhanghuizong/bitgame/app/constants/envConst"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"github.com/zhanghuizong/bitgame/app/models"
@@ -91,12 +90,9 @@ func parseMsg(c *Client, message []byte) {
 			uid, isOk := params["uid"].(string)
 			if isOk {
 				// 绑定 uid与socketId
-				env := config.GetAppEnv()
-				if env == envConst.Local || env == envConst.Dev || env == envConst.Test {
-					c.Jwt.Data.Uid = uid
-					c.Uid = uid
-					c.Hub.userList[c.Uid] = c.SocketId
-				}
+				c.Jwt.Data.Uid = uid
+				c.Uid = uid
+				ManagerHub.BindSocketId(c.Uid, c.SocketId)
 			}
 		}
 	}
@@ -138,9 +134,9 @@ func singleLogin(c *Client) {
 	oldSocketId := model.GetSocketId(uid)
 
 	if oldSocketId != "" {
-		oldClient := c.Hub.GetClientBySocketId(oldSocketId)
+		oldClient := ManagerHub.GetClientBySocketId(oldSocketId)
 		if oldClient != nil {
-			oldClient.insidePushError(errConst.AlreadyLogin)
+			insidePushError(c, errConst.AlreadyLogin)
 
 			time.AfterFunc(time.Second*3, func() {
 				closeClientOffline(oldClient)
@@ -151,7 +147,7 @@ func singleLogin(c *Client) {
 	model.AddSocketId(uid, c.SocketId)
 
 	// 绑定 uid与socketId
-	c.Hub.userList[c.Uid] = c.SocketId
+	ManagerHub.BindSocketId(c.Uid, c.SocketId)
 }
 
 func closeClient(c *Client) {
@@ -159,7 +155,7 @@ func closeClient(c *Client) {
 		return
 	}
 
-	c.Hub.unregister <- c
+	ManagerHub.unregister <- c
 	c.conn.Close()
 }
 

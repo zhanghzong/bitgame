@@ -19,5 +19,5 @@ import (
 
 func init() {
 	// 启动 redis 订阅模式
-	go redis.Subscribe(ws.WsManager)
+	go redis.Subscribe(ws.ManagerHub)
 }

@@ -22,7 +22,7 @@ func single(uid string, data interface{}) {
 		return
 	}
 
-	client := WsManager.GetClientByUserId(uid)
+	client := ManagerHub.GetClientByUserId(uid)
 	if client == nil {
 		hostname, _ := os.Hostname()
 		channelMsg := new(definition.RedisChannel)

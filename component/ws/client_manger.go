@@ -8,7 +8,7 @@ import (
 type ClientManager struct {
 	// 客户端
 	// socketId<=>client
-	clients map[string]*Client
+	clients sync.Map
 
 	// 监听客户注册请求
 	register chan *Client
@@ -18,58 +18,69 @@ type ClientManager struct {
 
 	// 用户与客户ID绑定关系
 	// userID<=>socketId
-	userList map[string]string
-
-	sync.RWMutex
+	userList sync.Map
 }
 
 func NewHub() *ClientManager {
 	return &ClientManager{
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[string]*Client),
-		userList:   make(map[string]string),
 	}
 }
 
 func (h *ClientManager) Run() {
-	defer h.Unlock()
-
 	for {
 		select {
 		// 客户登录
 		case client := <-h.register:
-			h.Lock()
-			h.clients[client.SocketId] = client
-			h.Unlock()
+			h.clients.Store(client.SocketId, client)
 
 		// 客户端退出
 		case client := <-h.unregister:
-			h.Lock()
-			if _, ok := h.clients[client.SocketId]; ok {
-				delete(h.clients, client.SocketId)
-				delete(h.userList, client.Uid)
+			if _, ok := h.clients.Load(client.SocketId); ok {
+				h.clients.Delete(client.SocketId)
+				h.userList.Delete(client.Uid)
 				close(client.send)
 			}
-			h.Unlock()
 		}
 	}
 }
 
-func (h *ClientManager) GetClientByUserId(uid string) *Client {
-	h.RLock()
-	defer h.RUnlock()
-	id, _ := h.userList[uid]
+// 用户与客户ID绑定关系
+// userID<=>socketId
+func (h *ClientManager) BindSocketId(uid string, socketId string) {
+	h.userList.Store(uid, socketId)
+}
 
-	return h.clients[id]
+// 根据 uid 换取 socketId
+func (h *ClientManager) GetClientByUserId(uid string) *Client {
+	socketId, ok1 := h.userList.Load(uid)
+	if !ok1 {
+		return nil
+	}
+
+	client, ok2 := h.clients.Load(socketId)
+	if !ok2 {
+		return nil
+	}
+
+	c, ok := client.(*Client)
+	if !ok {
+		return nil
+	}
+
+	return c
 }
 
 func (h *ClientManager) GetClientBySocketId(socketId string) *Client {
-	h.RLock()
-	defer h.RUnlock()
-	client, _ := h.clients[socketId]
+	client, _ := h.clients.Load(socketId)
 
-	return client
+	c, ok := client.(*Client)
+	if !ok {
+		return nil
+	}
+
+	return c
 }
 
 // Redis channel 消息分发

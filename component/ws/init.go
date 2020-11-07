@@ -1,8 +1,8 @@
 package ws
 
-var WsManager *ClientManager
+var ManagerHub *ClientManager
 
 func init() {
-	WsManager = NewHub()
-	go WsManager.Run()
+	ManagerHub = NewHub()
+	go ManagerHub.Run()
 }
