@@ -114,6 +114,8 @@ func parseMsg(c *Client, message []byte) {
 		return
 	}
 
+	c.Entry = c.WithField("pid", time.Now().UnixNano())
+	c.Entry = c.WithField("uid", c.Uid)
 	c.Msg = requestMsg
 
 	value(c)
