@@ -2,7 +2,6 @@ package ws
 
 import (
 	"encoding/json"
-	"github.com/rs/xid"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"github.com/zhanghuizong/bitgame/app/models"
@@ -108,18 +107,12 @@ func parseMsg(c *Client, message []byte) {
 
 	c.Infof("接收消息:%s", msgJson)
 
+	// call
 	value, ok := getHandlers(cmd)
 	if ok == false {
 		c.insidePushError(errConst.NoCmd)
 		return
 	}
-
-	_, isOk := c.Data["uid"]
-	if isOk {
-		c.Data["pid"] = xid.New().String()
-	}
-
-	c.Data["uid"] = c.Uid
 
 	c.Msg = requestMsg
 

@@ -63,7 +63,7 @@ func ServeWs(context *gin.Context) {
 	client.SocketId = guid
 	client.conn = conn
 	client.send = make(chan []byte, 1024)
-	client.Entry = logrus.WithFields(map[string]interface{}{"pid": guid})
+	client.Entry = logrus.WithFields(map[string]interface{}{})
 
 	// 注册客户端
 	ManagerHub.register <- client
