@@ -109,11 +109,11 @@ func GetMysqlDsn() string {
 // 数据库连接池大小
 // mysql.pool_size=10
 func GetMysqlPoolSize() int {
-	if viper.IsSet("mysql.pool_size") {
-		return viper.GetInt("mysql.pool_size")
+	if viper.IsSet("mysql.poolSize") {
+		return viper.GetInt("mysql.poolSize")
 	}
 
-	return apollo.Config.GetIntValue("mysql.pool_size", 0)
+	return apollo.Config.GetIntValue("mysql.poolSize", 0)
 }
 
 /** Redis 配置节点 **/
