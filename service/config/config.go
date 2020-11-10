@@ -106,6 +106,16 @@ func GetMysqlDsn() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local", user, passwd, host, port, database, charset)
 }
 
+// 数据库连接池大小
+// mysql.pool_size=10
+func GetMysqlPoolSize() int {
+	if viper.IsSet("mysql.pool_size") {
+		return viper.GetInt("mysql.pool_size")
+	}
+
+	return apollo.Config.GetIntValue("mysql.pool_size", 0)
+}
+
 /** Redis 配置节点 **/
 
 // host:port address

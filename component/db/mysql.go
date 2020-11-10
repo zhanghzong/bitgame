@@ -33,6 +33,7 @@ func (t dbLog) Print(values ...interface{}) {
 // MySQL 数据初始化
 func init() {
 	dsn := config.GetMysqlDsn()
+	poolSize := config.GetMysqlPoolSize()
 
 	var err error
 	Db, err = gorm.Open("mysql", dsn)
@@ -44,6 +45,11 @@ func init() {
 	// 打印 SQL 语句
 	Db.SetLogger(new(dbLog))
 	Db.LogMode(true)
+
+	if poolSize > 0 {
+		Db.DB().SetMaxIdleConns(poolSize) // 用于设置闲置的连接数
+		Db.DB().SetMaxOpenConns(poolSize) // 用于设置最大打开的连接数
+	}
 
 	logrus.Infof("MySQL 连接成功. dsn:%s", dsn)
 }
