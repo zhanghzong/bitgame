@@ -11,26 +11,24 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/app/definition"
-	"github.com/zhanghuizong/bitgame/app/models"
 	"github.com/zhanghuizong/bitgame/utils"
 	"github.com/zhanghuizong/bitgame/utils/aes"
 	"runtime/debug"
-	"strings"
 	"time"
 )
 
 const (
-	// Time allowed to write a message to the peer.
+	// 2 个小时未接收到消息，则强制让客户端下线
+	pongWait = 2 * time.Hour
+
+	// 写入消息超时时间
 	writeWait = 10 * time.Second
 
-	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
+	// 发送 ping 时间间隔
+	pingPeriod = 5 * time.Second
 
-	// send pings to peer with this period. Must be less than pongWait.
-	pingPeriod = (pongWait * 9) / 10
-
-	// Maximum message size allowed from peer.
-	maxMessageSize = 2048
+	// 接收消息大小
+	maxMessageSize = 104857600
 )
 
 var (
@@ -79,49 +77,22 @@ func (c *Client) read() {
 
 	pongWaitErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	if pongWaitErr != nil {
-		c.Warnln("设置 SetReadDeadline 异常", pongWaitErr)
+		c.Warnln("设置 SetReadDeadline 异常. pongWaitErr:", pongWaitErr)
 		return
 	}
 
 	// 设置 读取消息体大小
 	c.conn.SetReadLimit(maxMessageSize)
 
-	// 设置 pong 方法
-	c.conn.SetPongHandler(func(string) error {
-		c.conn.SetReadDeadline(time.Now().Add(pongWait))
-		return nil
-	})
-
-	// 设置 websocket 离线处理
-	c.conn.SetCloseHandler(func(code int, text string) error {
-		c.Infof("客户端离线, 错误码：%d, 错误：%s", code, text)
-
-		// offline
-		value, ok := getHandlers("offline")
-		if ok {
-			value(c)
-		}
-
-		model := new(models.LoginModel)
-		uid := c.Uid
-		connSocketId := model.GetSocketId(uid)
-		if connSocketId == c.SocketId {
-			model.DelSocketId(uid) // 删除 redis 登录记录
-		}
-
-		return nil
-	})
-
 	for {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
-			// 主动断开连接
-			isOk := strings.Contains(err.Error(), "An existing connection was forcibly closed by the remote host")
-			if isOk {
-				callOffline(c)
-				c.Infoln("读取消息异常", err)
-			}
+			return
+		}
 
+		readPongErr := c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		if readPongErr != nil {
+			c.Warnln("设置 SetReadDeadline 异常. readPongErr:", readPongErr)
 			return
 		}
 
@@ -144,6 +115,7 @@ func (c *Client) write() {
 
 	defer func() {
 		ticker.Stop()
+		c.conn.Close()
 	}()
 
 	for {
@@ -155,16 +127,15 @@ func (c *Client) write() {
 			}
 
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
-				c.Warnln("websocket-NextWriter 发送消息异常", err, string(message))
+				c.Warnln("[write] NextWriter 发送消息异常", err, string(message))
 				return
 			}
 
 			_, wErr := w.Write(message)
 			if wErr != nil {
-				c.Warnln("websocket-Write 发送消息异常", wErr, string(message))
+				c.Warnln("[write] Write 发送消息异常", wErr, string(message))
 			}
 
 			if err := w.Close(); err != nil {
@@ -172,7 +143,6 @@ func (c *Client) write() {
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
@@ -190,7 +160,6 @@ func (c *Client) sendMsg(data interface{}) {
 	}()
 
 	if c == nil {
-		closeClient(c)
 		return
 	}
 

@@ -134,7 +134,7 @@ func singleLogin(c *Client) {
 			insidePushError(c, errConst.AlreadyLogin)
 
 			time.AfterFunc(time.Second*3, func() {
-				closeClientOffline(oldClient)
+				closeClient(oldClient)
 			})
 		}
 	}
@@ -150,23 +150,21 @@ func closeClient(c *Client) {
 		return
 	}
 
-	ManagerHub.unregister <- c
+	offline(c)
 	c.conn.Close()
+	ManagerHub.unregister <- c
 }
 
-func closeClientOffline(c *Client) {
-	if c == nil {
-		return
+func offline(c *Client) {
+	value, ok := getHandlers("offline")
+	if ok {
+		value(c)
 	}
 
-	callOffline(c)
-	closeClient(c)
-}
-
-// 手动触发离线事件
-func callOffline(c *Client) {
-	method := c.conn.CloseHandler()
-	if method != nil {
-		method(1, "异地登录关闭")
+	model := new(models.LoginModel)
+	uid := c.Uid
+	connSocketId := model.GetSocketId(uid)
+	if connSocketId == c.SocketId {
+		model.DelSocketId(uid)
 	}
 }
