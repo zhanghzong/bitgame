@@ -46,7 +46,7 @@ func init() {
 	// 打印 SQL 语句
 	Db.SetLogger(new(dbLog))
 	Db.LogMode(true)
-	Db.DB().SetConnMaxLifetime(time.Minute) // 设置连接过期时间
+	Db.DB().SetConnMaxLifetime(time.Minute * 10) // 设置连接过期时间
 
 	if poolSize > 0 {
 		Db.DB().SetMaxIdleConns(poolSize) // 设置闲置的连接数
