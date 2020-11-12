@@ -153,6 +153,7 @@ func closeClient(c *Client) {
 	c.conn.Close()
 	ManagerHub.unregister <- c
 	offline(c)
+	c = nil
 }
 
 func offline(c *Client) {
