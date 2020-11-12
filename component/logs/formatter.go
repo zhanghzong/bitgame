@@ -14,7 +14,7 @@ func getTextFormatter() *nested.Formatter {
 		CustomCallerFormatter: func(frame *runtime.Frame) string {
 			return " [" + frame.Function + "]"
 		},
-		FieldsOrder: []string{"pid", "tid", "uid"},
+		FieldsOrder: []string{"pid", "rid", "tid", "uid"},
 	}
 }
 
