@@ -6,6 +6,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/service/config"
+	"time"
 )
 
 var (
@@ -45,10 +46,11 @@ func init() {
 	// 打印 SQL 语句
 	Db.SetLogger(new(dbLog))
 	Db.LogMode(true)
+	Db.DB().SetConnMaxLifetime(time.Minute) // 设置连接过期时间
 
 	if poolSize > 0 {
-		Db.DB().SetMaxIdleConns(poolSize) // 用于设置闲置的连接数
-		Db.DB().SetMaxOpenConns(poolSize) // 用于设置最大打开的连接数
+		Db.DB().SetMaxIdleConns(poolSize) // 设置闲置的连接数
+		Db.DB().SetMaxOpenConns(poolSize) // 设置最大打开的连接数
 	}
 
 	logrus.Infof("MySQL 连接成功. dsn:%s", dsn)
