@@ -81,6 +81,11 @@ func (c *Client) read() {
 		return
 	}
 
+	c.conn.SetPongHandler(func(string) error {
+		c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
+
 	// 设置 读取消息体大小
 	c.conn.SetReadLimit(maxMessageSize)
 
