@@ -6,6 +6,7 @@ import (
 	"github.com/zhanghuizong/bitgame/app/models"
 	"github.com/zhanghuizong/bitgame/component/redis"
 	"os"
+	"time"
 )
 
 func pushClient(c *Client, data interface{}) {
@@ -111,7 +112,9 @@ func alreadyLogin(c *Client) int {
 		redisPublish(uid, insideDataDesc(errConst.AlreadyLogin))
 
 		// 关闭客户端
-		closeClient(oldClient)
+		time.AfterFunc(time.Second*5, func() {
+			closeClient(oldClient)
+		})
 
 		return 1
 	}

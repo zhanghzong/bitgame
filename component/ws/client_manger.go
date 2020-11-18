@@ -3,6 +3,7 @@ package ws
 import (
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"sync"
+	"time"
 )
 
 type ClientManager struct {
@@ -108,7 +109,9 @@ func (h *ClientManager) RedisDispatch(msg *definition.RedisChannel) {
 			}
 
 			// 关闭客户端
-			closeClient(tmpClient)
+			time.AfterFunc(time.Second*5, func() {
+				closeClient(tmpClient)
+			})
 		}
 	}
 }
