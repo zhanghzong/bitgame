@@ -85,13 +85,27 @@ func (h *ClientManager) GetClientBySocketId(socketId string) *Client {
 
 // Redis channel 消息分发
 func (h *ClientManager) RedisDispatch(msg *definition.RedisChannel) {
-	users := msg.Users
-	for _, uid := range users {
-		client := h.GetClientByUserId(uid)
-		if client == nil {
-			continue
+	switch msg.Type {
+	// 正常消息推送
+	case "response":
+		users := msg.Users
+		for _, uid := range users {
+			client := h.GetClientByUserId(uid)
+			if client == nil {
+				continue
+			}
+
+			client.sendMsg(msg.Data)
 		}
 
-		client.sendMsg(msg.Data)
+	// 异常登录
+	case "alreadyLogin":
+		users := msg.Users
+		for _, uid := range users {
+			// -1:未登录
+			// 0:已登录(通知其它服务器判断)
+			// 1:已登录(本服务器已操作)
+			alreadyLogin(h.GetClientByUserId(uid))
+		}
 	}
 }

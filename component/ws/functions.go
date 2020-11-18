@@ -1,9 +1,12 @@
 package ws
 
 import (
+	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
+	"github.com/zhanghuizong/bitgame/app/models"
 	"github.com/zhanghuizong/bitgame/component/redis"
 	"os"
+	"time"
 )
 
 func pushClient(c *Client, data interface{}) {
@@ -75,4 +78,42 @@ func insidePushError(c *Client, res map[string]interface{}) {
 	}
 
 	c.sendMsg(data)
+}
+
+// 异地登录
+func alreadyLogin(c *Client) int {
+	if c == nil {
+		return -1
+	}
+
+	uid := c.Uid
+	model := new(models.LoginModel)
+	oldSocketId := model.GetSocketId(uid)
+	if oldSocketId == "" {
+		return -1
+	}
+
+	// 本服务器搜索到
+	oldClient := ManagerHub.GetClientBySocketId(oldSocketId)
+	if oldClient != nil {
+		c.Warnln("触发异地登录，即将关闭 socket", oldSocketId)
+		insidePushError(c, errConst.AlreadyLogin)
+		time.AfterFunc(time.Second*3, func() {
+			closeClient(oldClient)
+		})
+
+		return 1
+	}
+
+	return 0
+}
+
+// 通知其余服务器检测异地登录
+func alreadyLoginNotify(uid string) {
+	hostname, _ := os.Hostname()
+	channelMsg := new(definition.RedisChannel)
+	channelMsg.Type = "alreadyLogin"
+	channelMsg.Hostname = hostname
+	channelMsg.Users = []string{uid}
+	redis.Publish(channelMsg)
 }

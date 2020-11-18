@@ -124,21 +124,20 @@ func parseMsg(c *Client, message []byte) {
 // 单点登录
 func singleLogin(c *Client) {
 	uid := c.Uid
-
-	model := new(models.LoginModel)
-	oldSocketId := model.GetSocketId(uid)
-
-	if oldSocketId != "" {
-		oldClient := ManagerHub.GetClientBySocketId(oldSocketId)
-		if oldClient != nil {
-			insidePushError(c, errConst.AlreadyLogin)
-
-			time.AfterFunc(time.Second*3, func() {
-				closeClient(oldClient)
-			})
-		}
+	if uid == "" {
+		return
 	}
 
+	// 判断是否异地登录
+	// -1:未登录
+	// 0:已登录(通知其它服务器判断)
+	// 1:已登录(本服务器已操作)
+	isLogin := alreadyLogin(c)
+	if isLogin == 0 {
+		alreadyLoginNotify(uid) // 通知其余服务器
+	}
+
+	model := new(models.LoginModel)
 	model.AddSocketId(uid, c.SocketId)
 
 	// 绑定 uid与socketId
