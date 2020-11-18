@@ -72,6 +72,7 @@ func (c *Client) read() {
 	}()
 
 	defer func() {
+		offline(c)
 		closeClient(c)
 	}()
 
