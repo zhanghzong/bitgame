@@ -110,6 +110,7 @@ func alreadyLogin(c *Client) int {
 
 		// 关闭客户端
 		time.AfterFunc(time.Second*3, func() {
+			oldClient.IsAlreadyLogin = true
 			closeClient(oldClient)
 		})
 

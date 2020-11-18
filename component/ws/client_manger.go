@@ -114,6 +114,8 @@ func (h *ClientManager) RedisDispatch(msg *definition.RedisChannel) {
 
 			// 关闭客户端
 			time.AfterFunc(time.Second*3, func() {
+				tmpClient.IsAlreadyLogin = true
+
 				closeClient(tmpClient)
 			})
 		}

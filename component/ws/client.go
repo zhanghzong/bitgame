@@ -58,6 +58,9 @@ type Client struct {
 	// commonKey 加密认证 key
 	commonKey string
 
+	// 是否异地登录
+	IsAlreadyLogin bool
+
 	// 日志
 	*logrus.Entry
 }
