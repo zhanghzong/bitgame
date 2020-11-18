@@ -106,7 +106,7 @@ func alreadyLogin(c *Client) int {
 		c.Warnln("触发异地登录，即将关闭 socket", oldSocketId)
 
 		// 本服务器推送
-		insidePushError(c, errConst.AlreadyLogin)
+		insidePushError(oldClient, errConst.AlreadyLogin)
 
 		// 关闭客户端
 		time.AfterFunc(time.Second*3, func() {
