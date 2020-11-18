@@ -102,10 +102,13 @@ func (h *ClientManager) RedisDispatch(msg *definition.RedisChannel) {
 	case "alreadyLogin":
 		users := msg.Users
 		for _, uid := range users {
-			// -1:未登录
-			// 0:已登录(通知其它服务器判断)
-			// 1:已登录(本服务器已操作)
-			alreadyLogin(h.GetClientByUserId(uid))
+			tmpClient := h.GetClientByUserId(uid)
+			if tmpClient == nil {
+				continue
+			}
+
+			// 关闭客户端
+			closeClient(tmpClient)
 		}
 	}
 }

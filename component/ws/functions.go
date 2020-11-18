@@ -6,7 +6,6 @@ import (
 	"github.com/zhanghuizong/bitgame/app/models"
 	"github.com/zhanghuizong/bitgame/component/redis"
 	"os"
-	"time"
 )
 
 func pushClient(c *Client, data interface{}) {
@@ -27,18 +26,21 @@ func single(uid string, data interface{}) {
 
 	client := ManagerHub.GetClientByUserId(uid)
 	if client == nil {
-		hostname, _ := os.Hostname()
-		channelMsg := new(definition.RedisChannel)
-		channelMsg.Type = "response"
-		channelMsg.Hostname = hostname
-		channelMsg.Users = []string{uid}
-		channelMsg.Data = data
-		redis.Publish(channelMsg)
-
+		redisPublish(uid, data)
 		return
 	}
 
 	client.sendMsg(data)
+}
+
+func redisPublish(uid string, data interface{}) {
+	hostname, _ := os.Hostname()
+	channelMsg := new(definition.RedisChannel)
+	channelMsg.Type = "response"
+	channelMsg.Hostname = hostname
+	channelMsg.Users = []string{uid}
+	channelMsg.Data = data
+	redis.Publish(channelMsg)
 }
 
 // 消息广播
@@ -70,13 +72,17 @@ func pushError(cmd string, row definition.ErrMsgStruct) map[string]interface{} {
 	}
 }
 
-// 系统错误消息推送
-func insidePushError(c *Client, res map[string]interface{}) {
-	data := map[string]interface{}{
+// 系统内部错误消息格式
+func insideDataDesc(res interface{}) interface{} {
+	return map[string]interface{}{
 		"cmd": "conn::error",
 		"res": res,
 	}
+}
 
+// 系统错误消息推送
+func insidePushError(c *Client, res map[string]interface{}) {
+	data := insideDataDesc(res)
 	c.sendMsg(data)
 }
 
@@ -97,10 +103,15 @@ func alreadyLogin(c *Client) int {
 	oldClient := ManagerHub.GetClientBySocketId(oldSocketId)
 	if oldClient != nil {
 		c.Warnln("触发异地登录，即将关闭 socket", oldSocketId)
+
+		// 本服务器推送
 		insidePushError(c, errConst.AlreadyLogin)
-		time.AfterFunc(time.Second*3, func() {
-			closeClient(oldClient)
-		})
+
+		// 消息同步其它服务器
+		redisPublish(uid, insideDataDesc(errConst.AlreadyLogin))
+
+		// 关闭客户端
+		closeClient(oldClient)
 
 		return 1
 	}
