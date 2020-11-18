@@ -108,11 +108,8 @@ func alreadyLogin(c *Client) int {
 		// 本服务器推送
 		insidePushError(c, errConst.AlreadyLogin)
 
-		// 消息同步其它服务器
-		redisPublish(uid, insideDataDesc(errConst.AlreadyLogin))
-
 		// 关闭客户端
-		time.AfterFunc(time.Second*5, func() {
+		time.AfterFunc(time.Second*3, func() {
 			closeClient(oldClient)
 		})
 

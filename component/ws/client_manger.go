@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"sync"
 	"time"
@@ -108,8 +109,11 @@ func (h *ClientManager) RedisDispatch(msg *definition.RedisChannel) {
 				continue
 			}
 
+			// 消息推送
+			insidePushError(tmpClient, errConst.AlreadyLogin)
+
 			// 关闭客户端
-			time.AfterFunc(time.Second*5, func() {
+			time.AfterFunc(time.Second*3, func() {
 				closeClient(tmpClient)
 			})
 		}
