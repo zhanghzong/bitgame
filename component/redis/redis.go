@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"github.com/go-redis/redis/v7"
 	"github.com/sirupsen/logrus"
@@ -29,12 +30,16 @@ func init() {
 		dbIndex = 1
 	}
 
+	tlsConfig := new(tls.Config)
+	tlsConfig.InsecureSkipVerify = false
+
 	Redis = redis.NewClient(&redis.Options{
 		Addr:         addr,
 		Password:     password,
 		DB:           dbIndex,
 		PoolSize:     poolSize,
 		MinIdleConns: minIdleConns,
+		TLSConfig:    tlsConfig,
 	})
 
 	_, err := Redis.Ping().Result()
