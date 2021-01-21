@@ -21,6 +21,7 @@ func init() {
 	dbIndex := config.GetRedisDb()
 	poolSize := config.GetRedisPoolSize()
 	minIdleConns := config.GetRedisMinIdleConns()
+	insecureSkipVerify := config.GetInsecureSkipVerify()
 
 	if addr == "" {
 		addr = "localhost:6379"
@@ -30,17 +31,23 @@ func init() {
 		dbIndex = 1
 	}
 
-	tlsConfig := new(tls.Config)
-	tlsConfig.InsecureSkipVerify = false
-
-	Redis = redis.NewClient(&redis.Options{
+	// Redis 基础配置
+	options := &redis.Options{
 		Addr:         addr,
 		Password:     password,
 		DB:           dbIndex,
 		PoolSize:     poolSize,
 		MinIdleConns: minIdleConns,
-		TLSConfig:    tlsConfig,
-	})
+	}
+
+	// 启用不安全的TLS认证
+	if insecureSkipVerify {
+		options.TLSConfig = &tls.Config{
+			InsecureSkipVerify: true,
+		}
+	}
+
+	Redis = redis.NewClient(options)
 
 	_, err := Redis.Ping().Result()
 	if err != nil {
