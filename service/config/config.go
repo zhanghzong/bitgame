@@ -267,3 +267,23 @@ func GetJavaRsaPublic() string {
 
 	return apollo.Config.GetValue("java.rsa.public")
 }
+
+// # 监控 URL 接口地址
+// telegram.url=http://fat.monitor.testbitgame.com/
+func GetTelegramUrl() string {
+	if viper.IsSet("telegram.url") {
+		return viper.GetString("telegram.url")
+	}
+
+	return apollo.Config.GetValue("telegram.url")
+}
+
+// telegram 聊天群ID
+// telegram.chatId=-429713498
+func GetTelegramChatId() string {
+	if viper.IsSet("telegram.chatId") {
+		return viper.GetString("telegram.chatId")
+	}
+
+	return apollo.Config.GetValue("telegram.chatId")
+}

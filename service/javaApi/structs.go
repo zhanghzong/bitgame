@@ -71,3 +71,8 @@ type AcctIncreaseStruct struct {
 	api
 	Data string `json:"data"`
 }
+
+// { "status": "ok" }
+type TelegramSendMessageStruct struct {
+	Status string `json:"status"`
+}
