@@ -2,6 +2,7 @@ package javaApi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/wenzhenxi/gorsa"
@@ -80,7 +81,7 @@ func post(api string, data map[string]interface{}) (string, error) {
 }
 
 // 异常报警
-func SendMessageFormat(url string, dataStr string, err error) {
+func SendMessageFormat(url string, request string, err error) {
 	errStr := ""
 	if err != nil {
 		errStr = err.Error()
@@ -90,15 +91,19 @@ func SendMessageFormat(url string, dataStr string, err error) {
 		"日期：%s\n" +
 		"接口地址：%s\n" +
 		"请求参数：%s\n" +
-		"异常：接口请求异常"
+		"错误内容：%s"
 
-	// 拼接错误数据
-	if errStr != "" {
-		txt = txt + ". err:" + errStr
+	gameNo := config.GetJavaGameId() + "(钓鱼)"
+	now := time.Now().Format("2006-01-02 15:04:05")
+	txt = fmt.Sprintf(txt, gameNo, now, url, request, errStr)
+	_, _ = SendMessage(txt)
+}
+
+func IsCheckSend(rspCode string, url string, request map[string]interface{}, err string) {
+	if rspCode == "0000" || rspCode == "6006" || rspCode == "5001" {
+		return
 	}
 
-	gameNo := config.GetJavaGameId()
-	now := time.Now().Format("2006-01-02 15:04:05")
-	txt = fmt.Sprintf(txt, gameNo, now, url, dataStr)
-	_, _ = SendMessage(txt)
+	jsonRes, _ := json.Marshal(request)
+	go SendMessageFormat(url, string(jsonRes), errors.New(err))
 }

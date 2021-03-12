@@ -36,10 +36,7 @@ func DeductUserAccount(openId string, currency string, outOrderNo string, amount
 	err := json.Unmarshal([]byte(res), responseData)
 
 	// 接口返回异常
-	if responseData.RspCode != "0000" {
-		jsonRes, _ := json.Marshal(data)
-		go SendMessageFormat(url, string(jsonRes), err)
-	}
+	IsCheckSend(responseData.RspCode, url, data, res)
 
 	return responseData, err
 }
@@ -75,10 +72,7 @@ func AcctIncrease(openId string, currency string, outOrderNo string, orderNo str
 	err := json.Unmarshal([]byte(res), responseData)
 
 	// 接口返回异常
-	if responseData.RspCode != "0000" {
-		jsonRes, _ := json.Marshal(data)
-		go SendMessageFormat(url, string(jsonRes), err)
-	}
+	IsCheckSend(responseData.RspCode, url, data, res)
 
 	return responseData, err
 }
@@ -103,10 +97,7 @@ func GetCurrencyList() (*GetCurrencyListStruct, error) {
 	err := json.Unmarshal([]byte(res), responseData)
 
 	// 接口返回异常
-	if responseData.RspCode != "0000" {
-		jsonRes, _ := json.Marshal(data)
-		go SendMessageFormat(url, string(jsonRes), err)
-	}
+	IsCheckSend(responseData.RspCode, url, data, res)
 
 	return responseData, err
 }
@@ -130,10 +121,7 @@ func GetBalanceList(openId string) (*GetBalanceListStruct, error) {
 	err := json.Unmarshal([]byte(res), responseData)
 
 	// 接口返回异常
-	if responseData.RspCode != "0000" {
-		jsonRes, _ := json.Marshal(data)
-		go SendMessageFormat(url, string(jsonRes), err)
-	}
+	IsCheckSend(responseData.RspCode, url, data, res)
 
 	return responseData, err
 }
