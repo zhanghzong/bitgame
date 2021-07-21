@@ -12,6 +12,7 @@
 - MySQL
 - Redis
 - 配置文件
+- kafka 日志收集
 
 # 配置文件
 
