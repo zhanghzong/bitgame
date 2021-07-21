@@ -58,7 +58,7 @@ func init() {
 	logrus.Infof("Redis 连接成功. addr:%s", addr)
 }
 
-// 消息订阅
+// Subscribe 消息订阅
 func Subscribe(clientManger definition.ClientManagerInterface) {
 	defer func() {
 		err := recover()
@@ -93,7 +93,7 @@ func Subscribe(clientManger definition.ClientManagerInterface) {
 	}
 }
 
-// 发布消息
+// Publish 发布消息
 func Publish(message interface{}) {
 	res, _ := json.Marshal(message)
 	cmd := Redis.Publish(redisConst.ChannelName, res)

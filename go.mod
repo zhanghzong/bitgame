@@ -3,7 +3,9 @@ module github.com/zhanghuizong/bitgame
 go 1.15
 
 require (
+	github.com/Shopify/sarama v1.29.1
 	github.com/antonfisher/nested-logrus-formatter v1.3.0
+	github.com/bshuster-repo/logrus-logstash-hook v1.0.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gin-gonic/gin v1.6.3
@@ -13,7 +15,7 @@ require (
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.3 // indirect
 	github.com/rs/xid v1.2.1
-	github.com/sirupsen/logrus v1.7.0
+	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.7.1
 	github.com/wenzhenxi/gorsa v0.0.0-20191231021121-58a13482fb09
 	github.com/zouyx/agollo/v4 v4.0.1

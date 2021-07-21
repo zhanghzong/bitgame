@@ -18,7 +18,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// websocket 协议升级处理逻辑
+// ServeWs websocket 协议升级处理逻辑
 func ServeWs(context *gin.Context) {
 	conn, err := upgrader.Upgrade(context.Writer, context.Request, nil)
 	if err != nil {

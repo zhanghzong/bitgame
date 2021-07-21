@@ -2,7 +2,10 @@ package logs
 
 import (
 	nested "github.com/antonfisher/nested-logrus-formatter"
+	logstash "github.com/bshuster-repo/logrus-logstash-hook"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"github.com/zhanghuizong/bitgame/utils/ip"
 	"runtime"
 )
 
@@ -25,4 +28,12 @@ func getJsonFormatter() *logrus.JSONFormatter {
 			return frame.Function, ""
 		},
 	}
+}
+
+// 输出 logstash 日志格式
+func getLogstashFormatter() logrus.Formatter {
+	return logstash.DefaultFormatter(logrus.Fields{
+		"appName": viper.GetString("apollo.appId"),
+		"host":    ip.GetIp(),
+	})
 }

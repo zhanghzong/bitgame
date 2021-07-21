@@ -11,7 +11,7 @@ var (
 	rwLock   sync.RWMutex
 )
 
-// 注册
+// Register 注册
 func Register(key string, value functions) {
 	rwLock.Lock()
 	defer rwLock.Unlock()

@@ -189,7 +189,7 @@ func (c *Client) sendMsg(data interface{}) {
 	c.send <- jsonByte
 }
 
-// 统一消息推送格式
+// Success 统一消息推送格式
 // 正确消息单播
 func (c *Client) Success(cmd string, data interface{}) {
 	if c == nil {
@@ -209,7 +209,7 @@ func (c *Client) Error(cmd string, row definition.ErrMsgStruct) {
 	pushClient(c, pushError(cmd, row))
 }
 
-// 统一消息推送格式
+// Broadcast 统一消息推送格式
 // uid 模式消息推送
 func (c *Client) Broadcast(users []string, cmd string, data interface{}) {
 	broadcast(users, cmd, data)

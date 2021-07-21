@@ -1,10 +1,10 @@
 package logs
 
 import (
-	"fmt"
 	"github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"github.com/zhanghuizong/bitgame/service/config"
 	"log"
 	"os"
 	"time"
@@ -41,8 +41,14 @@ func init() {
 	logLevel := logrus.Level(viper.GetInt("log.level"))
 	logrus.SetLevel(logLevel)
 	logrus.SetOutput(out)
-}
 
-func getFileName() string {
-	return fmt.Sprintf("%s.log", time.Now().Format("2006-01-02"))
+	// 日志需要写入 kafka
+	if config.GetLogWriteKafka() {
+		hook, err := initKafkaHook()
+		if err != nil {
+			logrus.Fatalf("initKafkaHook 失败. %s", err.Error())
+		}
+
+		logrus.AddHook(hook)
+	}
 }

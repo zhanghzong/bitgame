@@ -48,13 +48,13 @@ func (h *ClientManager) Run() {
 	}
 }
 
-// 用户与客户ID绑定关系
+// BindSocketId 用户与客户ID绑定关系
 // userID<=>socketId
 func (h *ClientManager) BindSocketId(uid string, socketId string) {
 	h.userList.Store(uid, socketId)
 }
 
-// 根据 uid 换取 socketId
+// GetClientByUserId 根据 uid 换取 socketId
 func (h *ClientManager) GetClientByUserId(uid string) *Client {
 	socketId, ok1 := h.userList.Load(uid)
 	if !ok1 {
@@ -85,7 +85,7 @@ func (h *ClientManager) GetClientBySocketId(socketId string) *Client {
 	return c
 }
 
-// Redis channel 消息分发
+// RedisDispatch Redis channel 消息分发
 func (h *ClientManager) RedisDispatch(msg *definition.RedisChannel) {
 	switch msg.Type {
 	// 正常消息推送

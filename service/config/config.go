@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"github.com/zhanghuizong/bitgame/component/apollo"
+	"strings"
 )
 
-// 获取环境变量
+// GetAppEnv 获取环境变量
 // dev= 开发环境
 // test= 测试环境
 // pre= 预发环境
@@ -16,7 +17,7 @@ func GetAppEnv() string {
 	return viper.GetString("app.env")
 }
 
-// 是否启用加密通信
+// GetAppAuth 是否启用加密通信
 // app.auth=true
 func GetAppAuth() bool {
 	if viper.IsSet("app.auth") {
@@ -26,7 +27,7 @@ func GetAppAuth() bool {
 	return apollo.Config.GetBoolValue("app.auth", true)
 }
 
-// RSA 私钥
+// GetAppRsaPrivate RSA 私钥
 // app.rsa.private=-----BEGIN RSA PRIVATE KEY-----\n....\n-----END RSA PRIVATE KEY-----
 func GetAppRsaPrivate() string {
 	if viper.IsSet("app.rsa.private") {
@@ -36,7 +37,7 @@ func GetAppRsaPrivate() string {
 	return apollo.Config.GetValue("app.rsa.private")
 }
 
-// RSA 公钥
+// GetAppRsaPublic RSA 公钥
 // app.rsa.public=-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----
 func GetAppRsaPublic() string {
 	if viper.IsSet("app.rsa.public") {
@@ -46,7 +47,7 @@ func GetAppRsaPublic() string {
 	return apollo.Config.GetValue("app.rsa.public")
 }
 
-// jwt 秘钥
+// GetJwtKey jwt 秘钥
 // jwt.key=8a3d4b8a3f13bc8c013f13bc8c9c0000
 func GetJwtKey() string {
 	if viper.IsSet("jwt.key") {
@@ -56,7 +57,7 @@ func GetJwtKey() string {
 	return apollo.Config.GetValue("jwt.key")
 }
 
-// jwt 过期时间. 单位(小时)
+// GetJwtExpired jwt 过期时间. 单位(小时)
 // jwt.expired=48
 func GetJwtExpired() int {
 	if viper.IsSet("jwt.expired") {
@@ -71,7 +72,7 @@ func GetJwtExpired() int {
 	return apollo.Config.GetIntValue("jwt.expired", 48)
 }
 
-// mysql 数据源
+// GetMysqlDsn mysql 数据源
 // mysql.host=localhost
 // mysql.user=root
 // mysql.passwd=123
@@ -106,7 +107,7 @@ func GetMysqlDsn() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local", user, passwd, host, port, database, charset)
 }
 
-// 数据库连接池大小
+// GetMysqlPoolSize 数据库连接池大小
 // mysql.pool_size=10
 func GetMysqlPoolSize() int {
 	if viper.IsSet("mysql.poolSize") {
@@ -128,7 +129,7 @@ func GetRedisAddr() string {
 	return apollo.Config.GetValue("redis.addr")
 }
 
-// Optional password. Must match the password specified in the
+// GetRedisPassword Optional password. Must match the password specified in the
 // requirepass server configuration option (if connecting to a Redis 5.0 instance, or lower),
 // or the User Password when connecting to a Redis 6.0 instance, or greater, that is using the Redis ACL system.
 // redis.password=
@@ -140,7 +141,7 @@ func GetRedisPassword() string {
 	return apollo.Config.GetValue("redis.password")
 }
 
-// Database to be selected after connecting to the server.
+// GetRedisDb Database to be selected after connecting to the server.
 // redis.db=1
 func GetRedisDb() int {
 	if viper.IsSet("redis.db") {
@@ -150,7 +151,7 @@ func GetRedisDb() int {
 	return apollo.Config.GetIntValue("redis.db", 1)
 }
 
-// Maximum number of socket connections.
+// GetRedisPoolSize Maximum number of socket connections.
 // Default is 10 connections per every CPU as reported by runtime.NumCPU.
 // redis.poolSize=30
 func GetRedisPoolSize() int {
@@ -161,7 +162,7 @@ func GetRedisPoolSize() int {
 	return apollo.Config.GetIntValue("redis.poolSize", 10)
 }
 
-// Minimum number of idle connections which is useful when establishing
+// GetRedisMinIdleConns Minimum number of idle connections which is useful when establishing
 // new connection is slow.
 // redis.minIdleConns=30
 func GetRedisMinIdleConns() int {
@@ -172,7 +173,7 @@ func GetRedisMinIdleConns() int {
 	return apollo.Config.GetIntValue("redis.minIdleConns", 30)
 }
 
-// InsecureSkipVerify controls whether a client verifies the server's
+// GetInsecureSkipVerify InsecureSkipVerify controls whether a client verifies the server's
 // certificate chain and host name. If InsecureSkipVerify is true, crypto/tls
 // accepts any certificate presented by the server and any host name in that
 // certificate. In this mode, TLS is susceptible to machine-in-the-middle
@@ -188,7 +189,7 @@ func GetInsecureSkipVerify() bool {
 
 /** java 配置节点 */
 
-// 游戏ID
+// GetJavaGameId 游戏ID
 //java.gameId=10008
 func GetJavaGameId() string {
 	if viper.IsSet("java.gameId") {
@@ -198,7 +199,7 @@ func GetJavaGameId() string {
 	return apollo.Config.GetValue("java.gameId")
 }
 
-// 客户端ID
+// GetJavaClientId 客户端ID
 //java.clientId=game-fishing
 func GetJavaClientId() string {
 	if viper.IsSet("java.clientId") {
@@ -208,7 +209,7 @@ func GetJavaClientId() string {
 	return apollo.Config.GetValue("java.clientId")
 }
 
-// 客户端授权秘钥
+// GetJavaClientSecret 客户端授权秘钥
 // java.clientSecret=f857f55b86f04b78824ad3a94948a584
 func GetJavaClientSecret() string {
 	if viper.IsSet("java.clientSecret") {
@@ -218,7 +219,7 @@ func GetJavaClientSecret() string {
 	return apollo.Config.GetValue("java.clientSecret")
 }
 
-// 接口请求密钥
+// GetJavaApiKey 接口请求密钥
 // java.apiKey=009093eb938e4f0e97579132d29e235d
 func GetJavaApiKey() string {
 	if viper.IsSet("java.apiKey") {
@@ -228,7 +229,7 @@ func GetJavaApiKey() string {
 	return apollo.Config.GetValue("java.apiKey")
 }
 
-// 接口域名地址
+// GetJavaServerApi 接口域名地址
 // java.serverApi=http://api.btgame.club
 func GetJavaServerApi() string {
 	if viper.IsSet("java.serverApi") {
@@ -238,7 +239,7 @@ func GetJavaServerApi() string {
 	return apollo.Config.GetValue("java.serverApi")
 }
 
-// 渠道ID
+// GetJavaChannelId 渠道ID
 // java.channelId=BITGAME
 func GetJavaChannelId() string {
 	if viper.IsSet("java.channelId") {
@@ -248,7 +249,7 @@ func GetJavaChannelId() string {
 	return apollo.Config.GetValue("java.channelId")
 }
 
-// 游戏一级域名
+// GetJavaDomainKey 游戏一级域名
 // java.domainKey=btgame.club
 func GetJavaDomainKey() string {
 	if viper.IsSet("java.domainKey") {
@@ -258,7 +259,7 @@ func GetJavaDomainKey() string {
 	return apollo.Config.GetValue("java.domainKey")
 }
 
-// RSA
+// GetJavaRsaPublic RSA
 //java.rsa.public=-----BEGIN PUBLIC KEY-----\n....\n-----END PUBLIC KEY-----
 func GetJavaRsaPublic() string {
 	if viper.IsSet("java.rsa.public") {
@@ -268,7 +269,7 @@ func GetJavaRsaPublic() string {
 	return apollo.Config.GetValue("java.rsa.public")
 }
 
-// # 监控 URL 接口地址
+// GetTelegramUrl # 监控 URL 接口地址
 // telegram.url=http://fat.monitor.testbitgame.com/
 func GetTelegramUrl() string {
 	if viper.IsSet("telegram.url") {
@@ -278,7 +279,7 @@ func GetTelegramUrl() string {
 	return apollo.Config.GetValue("telegram.url")
 }
 
-// telegram 聊天群ID
+// GetTelegramChatId telegram 聊天群ID
 // telegram.chatId=-429713498
 func GetTelegramChatId() string {
 	if viper.IsSet("telegram.chatId") {
@@ -286,4 +287,48 @@ func GetTelegramChatId() string {
 	}
 
 	return apollo.Config.GetValue("telegram.chatId")
+}
+
+// GetLogWriteKafka 是否需要将日志写入 kafka
+// log.write.kafka = false
+func GetLogWriteKafka() bool {
+	if viper.IsSet("log.write.kafka") {
+		return viper.GetBool("log.write.kafka")
+	}
+
+	return apollo.Config.GetBoolValue("log.write.kafka", false)
+}
+
+// GetKafkaBrokers kafka 集群列表
+// kafka.brokers=172.16.4.101:9092,172.16.4.102:9092,172.16.4.103:9092
+func GetKafkaBrokers() []string {
+	val := ""
+	if viper.IsSet("kafka.brokers") {
+		val = viper.GetString("kafka.brokers")
+	} else {
+		val = apollo.Config.GetValue("kafka.brokers")
+	}
+
+	if val == "" {
+		return []string{}
+	}
+
+	return strings.Split(strings.Replace(val, " ", "", -1), ",")
+}
+
+// GetKafkaTopics kafka topic
+// kafka.topics=game-logs
+func GetKafkaTopics() []string {
+	val := ""
+	if viper.IsSet("kafka.topics") {
+		val = viper.GetString("kafka.topics")
+	} else {
+		val = apollo.Config.GetValue("kafka.topics")
+	}
+
+	if val == "" {
+		return []string{}
+	}
+
+	return strings.Split(strings.Replace(val, " ", "", -1), ",")
 }

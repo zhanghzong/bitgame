@@ -7,7 +7,7 @@ import (
 	"github.com/zouyx/agollo/v4/env/config"
 )
 
-// 阿波罗实例对象
+// Config 阿波罗实例对象
 var Config *agollo.Client
 
 func init() {
