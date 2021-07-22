@@ -20,6 +20,19 @@ func init() {
 		logPath = "logs"
 	}
 
+	// 获取目录属性状态
+	stat, dirErr := os.Stat(logPath)
+	if dirErr != nil {
+		return
+	}
+
+	// 权限判断
+	// 000 010 010 010 == 146
+	flag := stat.Mode().Perm() & os.FileMode(146)
+	if uint32(flag) != uint32(146) {
+		return
+	}
+
 	// 日志分割器
 	fullName := logPath + string(os.PathSeparator) + "%Y-%m-%d.log"
 	out, err := rotatelogs.New(

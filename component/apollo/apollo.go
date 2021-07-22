@@ -27,6 +27,4 @@ func init() {
 	}
 
 	Config.AddChangeListener(&changeListener{})
-
-	logrus.Infof("阿波罗连接成功. ip:%s", viper.GetString("apollo.ip"))
 }
