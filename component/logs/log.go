@@ -30,6 +30,7 @@ func init() {
 	// 000 010 010 010 == 146
 	flag := stat.Mode().Perm() & os.FileMode(146)
 	if uint32(flag) != uint32(146) {
+		setLogOut()
 		return
 	}
 
@@ -64,4 +65,14 @@ func init() {
 
 		logrus.AddHook(hook)
 	}
+}
+
+// 取消所有日志输出
+func setLogOut() {
+	src, err := os.OpenFile(os.DevNull, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		return
+	}
+
+	logrus.SetOutput(src)
 }

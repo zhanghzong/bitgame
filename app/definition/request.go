@@ -2,7 +2,7 @@ package definition
 
 import "encoding/json"
 
-// 接受消息结构体
+// RequestMsg 接受消息结构体
 type RequestMsg struct {
 	Cmd    string                 `json:"cmd"`
 	Params map[string]interface{} `json:"params"`
@@ -14,7 +14,7 @@ func (t RequestMsg) String() string {
 	return string(s)
 }
 
-//{
+// ParamJwt {
 //	"data": {
 //		"domain": "btgame.club",
 //		"email": "1019***@qq.com",

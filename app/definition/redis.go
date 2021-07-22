@@ -1,6 +1,6 @@
 package definition
 
-// Redis channel communication struct defined
+// RedisChannel Redis channel communication struct defined
 type RedisChannel struct {
 	Type     string      `json:"type"`
 	Hostname string      `json:"hostname"`
