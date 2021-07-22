@@ -24,6 +24,10 @@ func GetAppAuth() bool {
 		return viper.GetBool("app.auth")
 	}
 
+	if apollo.Config == nil {
+		return true
+	}
+
 	return apollo.Config.GetBoolValue("app.auth", true)
 }
 
@@ -32,6 +36,10 @@ func GetAppAuth() bool {
 func GetAppRsaPrivate() string {
 	if viper.IsSet("app.rsa.private") {
 		return viper.GetString("app.rsa.private")
+	}
+
+	if apollo.Config == nil {
+		return ""
 	}
 
 	return apollo.Config.GetValue("app.rsa.private")
@@ -44,6 +52,10 @@ func GetAppRsaPublic() string {
 		return viper.GetString("app.rsa.public")
 	}
 
+	if apollo.Config == nil {
+		return ""
+	}
+
 	return apollo.Config.GetValue("app.rsa.public")
 }
 
@@ -52,6 +64,10 @@ func GetAppRsaPublic() string {
 func GetJwtKey() string {
 	if viper.IsSet("jwt.key") {
 		return viper.GetString("jwt.key")
+	}
+
+	if apollo.Config == nil {
+		return ""
 	}
 
 	return apollo.Config.GetValue("jwt.key")
@@ -67,6 +83,10 @@ func GetJwtExpired() int {
 		}
 
 		return expired
+	}
+
+	if apollo.Config == nil {
+		return 48
 	}
 
 	return apollo.Config.GetIntValue("jwt.expired", 48)
@@ -96,6 +116,10 @@ func GetMysqlDsn() string {
 		port = viper.GetString("mysql.port")
 		charset = viper.GetString("mysql.charset")
 	} else {
+		if apollo.Config == nil {
+			return ""
+		}
+
 		host = apollo.Config.GetValue("mysql.host")
 		user = apollo.Config.GetValue("mysql.user")
 		passwd = apollo.Config.GetValue("mysql.passwd")
@@ -114,6 +138,10 @@ func GetMysqlPoolSize() int {
 		return viper.GetInt("mysql.poolSize")
 	}
 
+	if apollo.Config == nil {
+		return 0
+	}
+
 	return apollo.Config.GetIntValue("mysql.poolSize", 0)
 }
 
@@ -124,6 +152,10 @@ func GetMysqlPoolSize() int {
 func GetRedisAddr() string {
 	if viper.IsSet("redis.addr") {
 		return viper.GetString("redis.addr")
+	}
+
+	if apollo.Config == nil {
+		return ""
 	}
 
 	return apollo.Config.GetValue("redis.addr")
@@ -138,6 +170,10 @@ func GetRedisPassword() string {
 		return viper.GetString("redis.password")
 	}
 
+	if apollo.Config == nil {
+		return ""
+	}
+
 	return apollo.Config.GetValue("redis.password")
 }
 
@@ -146,6 +182,10 @@ func GetRedisPassword() string {
 func GetRedisDb() int {
 	if viper.IsSet("redis.db") {
 		return viper.GetInt("redis.db")
+	}
+
+	if apollo.Config == nil {
+		return 1
 	}
 
 	return apollo.Config.GetIntValue("redis.db", 1)
@@ -159,6 +199,10 @@ func GetRedisPoolSize() int {
 		return viper.GetInt("redis.poolSize")
 	}
 
+	if apollo.Config == nil {
+		return 10
+	}
+
 	return apollo.Config.GetIntValue("redis.poolSize", 10)
 }
 
@@ -168,6 +212,10 @@ func GetRedisPoolSize() int {
 func GetRedisMinIdleConns() int {
 	if viper.IsSet("redis.minIdleConns") {
 		return viper.GetInt("redis.minIdleConns")
+	}
+
+	if apollo.Config == nil {
+		return 30
 	}
 
 	return apollo.Config.GetIntValue("redis.minIdleConns", 30)
@@ -184,6 +232,10 @@ func GetInsecureSkipVerify() bool {
 		return viper.GetBool("redis.insecureSkipVerify")
 	}
 
+	if apollo.Config == nil {
+		return false
+	}
+
 	return apollo.Config.GetBoolValue("redis.insecureSkipVerify", false)
 }
 
@@ -196,6 +248,10 @@ func GetJavaGameId() string {
 		return viper.GetString("java.gameId")
 	}
 
+	if apollo.Config == nil {
+		return ""
+	}
+
 	return apollo.Config.GetValue("java.gameId")
 }
 
@@ -204,6 +260,10 @@ func GetJavaGameId() string {
 func GetJavaClientId() string {
 	if viper.IsSet("java.clientId") {
 		return viper.GetString("java.clientId")
+	}
+
+	if apollo.Config == nil {
+		return ""
 	}
 
 	return apollo.Config.GetValue("java.clientId")
@@ -216,6 +276,10 @@ func GetJavaClientSecret() string {
 		return viper.GetString("java.clientSecret")
 	}
 
+	if apollo.Config == nil {
+		return ""
+	}
+
 	return apollo.Config.GetValue("java.clientSecret")
 }
 
@@ -224,6 +288,10 @@ func GetJavaClientSecret() string {
 func GetJavaApiKey() string {
 	if viper.IsSet("java.apiKey") {
 		return viper.GetString("java.apiKey")
+	}
+
+	if apollo.Config == nil {
+		return ""
 	}
 
 	return apollo.Config.GetValue("java.apiKey")
@@ -236,6 +304,10 @@ func GetJavaServerApi() string {
 		return viper.GetString("java.serverApi")
 	}
 
+	if apollo.Config == nil {
+		return ""
+	}
+
 	return apollo.Config.GetValue("java.serverApi")
 }
 
@@ -244,6 +316,10 @@ func GetJavaServerApi() string {
 func GetJavaChannelId() string {
 	if viper.IsSet("java.channelId") {
 		return viper.GetString("java.channelId")
+	}
+
+	if apollo.Config == nil {
+		return ""
 	}
 
 	return apollo.Config.GetValue("java.channelId")
@@ -256,6 +332,10 @@ func GetJavaDomainKey() string {
 		return viper.GetString("java.domainKey")
 	}
 
+	if apollo.Config == nil {
+		return ""
+	}
+
 	return apollo.Config.GetValue("java.domainKey")
 }
 
@@ -264,6 +344,10 @@ func GetJavaDomainKey() string {
 func GetJavaRsaPublic() string {
 	if viper.IsSet("java.rsa.public") {
 		return viper.GetString("java.rsa.public")
+	}
+
+	if apollo.Config == nil {
+		return ""
 	}
 
 	return apollo.Config.GetValue("java.rsa.public")
@@ -276,6 +360,10 @@ func GetTelegramUrl() string {
 		return viper.GetString("telegram.url")
 	}
 
+	if apollo.Config == nil {
+		return ""
+	}
+
 	return apollo.Config.GetValue("telegram.url")
 }
 
@@ -284,6 +372,10 @@ func GetTelegramUrl() string {
 func GetTelegramChatId() string {
 	if viper.IsSet("telegram.chatId") {
 		return viper.GetString("telegram.chatId")
+	}
+
+	if apollo.Config == nil {
+		return ""
 	}
 
 	return apollo.Config.GetValue("telegram.chatId")
@@ -296,6 +388,10 @@ func GetLogWriteKafka() bool {
 		return viper.GetBool("log.write.kafka")
 	}
 
+	if apollo.Config == nil {
+		return false
+	}
+
 	return apollo.Config.GetBoolValue("log.write.kafka", false)
 }
 
@@ -306,6 +402,10 @@ func GetKafkaBrokers() []string {
 	if viper.IsSet("kafka.brokers") {
 		val = viper.GetString("kafka.brokers")
 	} else {
+		if apollo.Config == nil {
+			return []string{}
+		}
+
 		val = apollo.Config.GetValue("kafka.brokers")
 	}
 
@@ -323,6 +423,10 @@ func GetKafkaTopics() []string {
 	if viper.IsSet("kafka.topics") {
 		val = viper.GetString("kafka.topics")
 	} else {
+		if apollo.Config == nil {
+			return []string{}
+		}
+
 		val = apollo.Config.GetValue("kafka.topics")
 	}
 

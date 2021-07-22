@@ -5,12 +5,15 @@ import (
 	"github.com/spf13/viper"
 	"github.com/zouyx/agollo/v4"
 	"github.com/zouyx/agollo/v4/env/config"
+	"log"
 )
 
 // Config 阿波罗实例对象
 var Config *agollo.Client
 
-func init() {
+func Init() {
+	log.Println("apollo.init")
+
 	apolloConfig := &config.AppConfig{
 		AppID:          viper.GetString("apollo.appId"),
 		Cluster:        viper.GetString("apollo.cluster"),

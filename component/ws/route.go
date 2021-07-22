@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-var upgrader = websocket.Upgrader{
+var upGrader = websocket.Upgrader{
 	ReadBufferSize:  10240,
 	WriteBufferSize: 10240,
 	CheckOrigin: func(r *http.Request) bool {
@@ -20,7 +20,7 @@ var upgrader = websocket.Upgrader{
 
 // ServeWs websocket 协议升级处理逻辑
 func ServeWs(context *gin.Context) {
-	conn, err := upgrader.Upgrade(context.Writer, context.Request, nil)
+	conn, err := upGrader.Upgrade(context.Writer, context.Request, nil)
 	if err != nil {
 		logrus.Errorln("Websocket 协议升级异常.", err)
 

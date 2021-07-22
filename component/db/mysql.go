@@ -6,6 +6,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/service/config"
+	"log"
 	"time"
 )
 
@@ -31,8 +32,10 @@ func (t dbLog) Print(values ...interface{}) {
 	}
 }
 
-// MySQL 数据初始化
-func init() {
+// Init MySQL 数据初始化
+func Init() {
+	log.Println("mysql.init")
+
 	dsn := config.GetMysqlDsn()
 	poolSize := config.GetMysqlPoolSize()
 

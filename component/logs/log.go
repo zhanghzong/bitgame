@@ -10,7 +10,9 @@ import (
 	"time"
 )
 
-func init() {
+func Init() {
+	log.Println("logs.init")
+
 	// 设置日志格式
 	logrus.SetFormatter(getTextFormatter())
 
@@ -18,20 +20,6 @@ func init() {
 	logPath := viper.GetString("log.path")
 	if logPath == "" {
 		logPath = "logs"
-	}
-
-	// 获取目录属性状态
-	stat, dirErr := os.Stat(logPath)
-	if dirErr != nil {
-		return
-	}
-
-	// 权限判断
-	// 000 010 010 010 == 146
-	flag := stat.Mode().Perm() & os.FileMode(146)
-	if uint32(flag) != uint32(146) {
-		setLogOut()
-		return
 	}
 
 	// 日志分割器

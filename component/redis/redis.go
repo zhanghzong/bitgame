@@ -8,14 +8,17 @@ import (
 	"github.com/zhanghuizong/bitgame/app/constants/redisConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"github.com/zhanghuizong/bitgame/service/config"
+	"log"
 )
 
 var (
 	Redis *redis.Client
 )
 
-// Redis 非关系型数据初始化
-func init() {
+// Init Redis 非关系型数据初始化
+func Init() {
+	log.Println("redis.init")
+
 	addr := config.GetRedisAddr()
 	password := config.GetRedisPassword()
 	dbIndex := config.GetRedisDb()
@@ -56,6 +59,9 @@ func init() {
 	}
 
 	logrus.Infof("Redis 连接成功. addr:%s", addr)
+
+	// 初始化 Redis 常量配置
+	redisConst.Init()
 }
 
 // Subscribe 消息订阅

@@ -4,11 +4,14 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"log"
 	"runtime/debug"
 )
 
-// 初始配置文件
-func init() {
+// Init 初始配置文件
+func Init() {
+	log.Println("env.init")
+
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	viper.WatchConfig()
