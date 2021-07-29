@@ -81,30 +81,37 @@ func (hook *KafkaHook) Fire(entry *logrus.Entry) error {
 		return errors.New("kafka topic 没有配置")
 	}
 
-	/** 保证字段类型一致, 否则 ELK 会发生冲突**/
+	// 指针深拷贝
+	dupEntry := entry.Dup()
+	dupEntry.Level = entry.Level
+	dupEntry.Caller = entry.Caller
+	dupEntry.Message = entry.Message
+	dupEntry.Buffer = entry.Buffer
+
+	// 保证字段类型一致, 否则 ELK 会发生冲突
 	// uid 转 string
-	uid, uidExists := entry.Data["uid"]
+	uid, uidExists := dupEntry.Data["uid"]
 	if uidExists {
 		uidInt, isInt := uid.(int)
 		if isInt {
-			entry = entry.WithField("uid", strconv.Itoa(uidInt))
+			dupEntry.Data["uid"] = strconv.Itoa(uidInt)
 		}
 	}
 
 	// rid 转 string
-	rid, ridExists := entry.Data["rid"]
+	rid, ridExists := dupEntry.Data["rid"]
 	if ridExists {
 		ridInt, isInt := rid.(int)
 		if isInt {
-			entry = entry.WithField("rid", strconv.Itoa(ridInt))
+			dupEntry.Data["rid"] = strconv.Itoa(ridInt)
 		}
 	}
 
 	// 追加日志时间
-	entry = entry.WithField("date", time.Now())
+	dupEntry.Data["date"] = time.Now()
 
 	// Format before writing
-	b, err := hook.formatter.Format(entry)
+	b, err := hook.formatter.Format(dupEntry)
 	if err != nil {
 		return err
 	}
