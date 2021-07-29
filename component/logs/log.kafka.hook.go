@@ -107,6 +107,20 @@ func (hook *KafkaHook) Fire(entry *logrus.Entry) error {
 		}
 	}
 
+	// pid 转 string
+	pid, pidExists := dupEntry.Data["pid"]
+	if pidExists {
+		pidInt64, isInt64 := pid.(int64)
+		if isInt64 {
+			dupEntry.Data["pid"] = strconv.FormatInt(pidInt64, 10)
+		}
+
+		pidInt, isInt := pid.(int)
+		if isInt {
+			dupEntry.Data["pid"] = strconv.Itoa(pidInt)
+		}
+	}
+
 	// 追加日志时间
 	dupEntry.Data["date"] = time.Now()
 
