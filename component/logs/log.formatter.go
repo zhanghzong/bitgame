@@ -32,8 +32,13 @@ func getJsonFormatter() *logrus.JSONFormatter {
 
 // 输出 logstash 日志格式
 func getLogstashFormatter() logrus.Formatter {
+	appName := viper.GetString("app.name")
+	if appName == "" {
+		appName = "fishings-server"
+	}
+
 	return logstash.DefaultFormatter(logrus.Fields{
-		"appName": viper.GetString("apollo.appId"),
+		"appName": appName,
 		"host":    ip.GetIp(),
 	})
 }
