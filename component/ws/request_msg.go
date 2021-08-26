@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"github.com/sirupsen/logrus"
 	"github.com/zhanghuizong/bitgame/app/constants/errConst"
 	"github.com/zhanghuizong/bitgame/app/definition"
 	"github.com/zhanghuizong/bitgame/app/models"
@@ -106,9 +107,10 @@ func parseMsg(c *Client, message []byte) {
 	})
 
 	c.Uid = c.Jwt.Data.Uid
-	c.Entry = c.WithField("pid", time.Now().UnixNano())
-	c.Entry = c.WithField("uid", c.Jwt.Data.Uid)
-	c.Entry = c.WithField("rid", "")
+	c.Entry = c.WithFields(logrus.Fields{
+		"pid": time.Now().UnixNano(),
+		"uid": c.Uid,
+	})
 	c.Infof("接收消息:%s", msgJson)
 
 	// call
