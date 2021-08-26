@@ -105,6 +105,7 @@ func parseMsg(c *Client, message []byte) {
 		"jwt":     c.Jwt,
 	})
 
+	c.Uid = c.Jwt.Data.Uid
 	c.Entry = c.WithField("pid", time.Now().UnixNano())
 	c.Entry = c.WithField("uid", c.Jwt.Data.Uid)
 	c.Entry = c.WithField("rid", "")
