@@ -20,8 +20,8 @@ func Register(key string, value functions) {
 	return
 }
 
-// 获取
-func getHandlers(key string) (value functions, ok bool) {
+// GetHandlers 获取
+func GetHandlers(key string) (value functions, ok bool) {
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 

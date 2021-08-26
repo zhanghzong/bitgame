@@ -77,7 +77,7 @@ func parseMsg(c *Client, message []byte) {
 				c.Uid = c.Jwt.Data.Uid
 
 				// websocket hook 上线操作
-				value, ok := getHandlers("online")
+				value, ok := GetHandlers("online")
 				if ok {
 					value(c)
 				}
@@ -108,7 +108,7 @@ func parseMsg(c *Client, message []byte) {
 	c.Infof("接收消息:%s", msgJson)
 
 	// call
-	value, ok := getHandlers(cmd)
+	value, ok := GetHandlers(cmd)
 	if ok == false {
 		c.insidePushError(errConst.NoCmd)
 		return
@@ -155,7 +155,7 @@ func closeClient(c *Client) {
 }
 
 func offline(c *Client) {
-	value, ok := getHandlers("offline")
+	value, ok := GetHandlers("offline")
 	if ok {
 		value(c)
 	}
