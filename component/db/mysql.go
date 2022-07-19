@@ -42,7 +42,7 @@ func Init() {
 	var err error
 	Db, err = gorm.Open("mysql", dsn)
 	if err != nil {
-		logrus.Fatalln("MySQL 连接异常", err, dsn)
+		logrus.Fatalln("MySQL 连接异常", err)
 		return
 	}
 
@@ -56,5 +56,5 @@ func Init() {
 		Db.DB().SetMaxOpenConns(poolSize) // 设置最大打开的连接数
 	}
 
-	logrus.Infof("MySQL 连接成功. dsn:%s", dsn)
+	logrus.Infof("MySQL 连接成功.")
 }
